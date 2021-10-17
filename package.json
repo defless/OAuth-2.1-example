@@ -1,10 +1,11 @@
 {
   "type": "module",
   "scripts": {
-    "start": "nodemon ./index.js"
+    "start": "node ./scripts/start"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "colors": "^1.4.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",

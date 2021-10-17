@@ -1,11 +1,11 @@
 import express from 'express';
 const router = express.Router();
 
-import {login, signup, generateKey} from '../controllers/auth.js';
+import {login, signup, generatePrivateKey} from '../controllers/auth.js';
 
 router.post('/login', login);
 router.post('/signup', signup);
-router.post('/generate', generateKey);
+router.post('/generatePk', generatePrivateKey);
 
 
 export default router;

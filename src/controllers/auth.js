@@ -53,11 +53,10 @@ export const signup = async (req, res, next) => {
   }
 };
 
-export const generateKey = (req, res, next) => {
+export const generatePrivateKey = (req, res, next) => {
   const privateKey = Crypto.randomBytes(64).toString('hex');
-  res.status(200).json({
-    privateKey,
-  });
+  process.env['privateKey'] = privateKey;
+  res.status(200).json({privateKey});
 };
 
 export const generateAccessToken = async (req, res, next) => {
