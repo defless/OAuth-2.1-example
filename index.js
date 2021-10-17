@@ -1,10 +1,12 @@
 import express from 'express';
-import { config } from 'dotenv';
+import dotenv from 'dotenv'
 import mongoose from 'mongoose';
-const app = express();
-const port = 3000;
 import authRoutes from './src/routes/auth.js';
 import privateServiceRoutes from './src/routes/privateService.js';
+
+dotenv.config()
+const app = express();
+const port = 3000;
 
 mongoose.connect('mongodb://localhost:27017/oAuth',
   { useNewUrlParser: true,
