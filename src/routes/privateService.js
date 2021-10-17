@@ -3,18 +3,21 @@ const router = express.Router();
 import jwt from 'jsonwebtoken';
 
 import { privateAction } from '../controllers/privateService.js';
+import { error } from '../utils.js';
 
 router.use((req, res, next) => {
   try {
-    if (!req.headers.authorization) { throw 'missing headers'}
+    if (!req.headers.authorization) {
+      throw { code: 400, message: 'missing authorization header'}
+    };
     const token = req.headers.authorization.split(" ")[1];
     if (!req.body.id) { throw 'missing user id'}
     if (jwt.verify(token, process.env.privateKey).id !== req.body.id) {
-      throw 'unauthorized'
+      throw {code: 401, message: 'unauthorized'}
     };
     next();
   } catch (e) {
-    res.status(404).json({ error: e })
+    error(res, e);
   }
 
 });

@@ -3,43 +3,41 @@ import Crypto from 'crypto';
 import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 
+import { error, check } from '../utils.js';
+
 export const login = async (req, res, next) => {
   try {
+    check(req.body.name, 'name');
+    check(req.body.password, 'password');
     const user = await User.where({ name: req.body.name }).findOne();
     if (!user) {
-      throw 'unknown user'
+      throw { code: 404, message:'unknown_user' }
     }
-    bcrypt.compare(req.body.password, user.password, (err, result) => {
-      if (result) {
-        res.status(200).json({
-          accesToken: jwt.sign(
-            { id: user._id, name: user.name },
-            process.env.privateKey,
-            { expiresIn: '900s' }
-          ),
-          refreshToken: user.refreshToken,
-        });
-      } else {
-        throw 'bad password'
-      }
-    });
+    const result = await bcrypt.compare(req.body.password, user.password)
+    if (result) {
+      res.status(200).json({
+        accesToken: jwt.sign(
+          { id: user._id, name: user.name },
+          process.env.privateKey,
+          { expiresIn: '900s' }
+        ),
+        refreshToken: user.refreshToken,
+      });
+    } else {
+      throw { code: 500, message:'wrong_password' }
+    }
   } catch (e) {
-
-  }
-  if (req.body.password === 'password') {
-
-  } else {
-    res.status(404).json({
-      error: 'incorrect password'
-    });
+    error(res, e);
   }
 };
 
 export const signup = async (req, res, next) => {
   try {
+    check(req.body.name, 'name');
+    check(req.body.password, 'password');
     const user = await User.where({ name: req.body.name }).findOne();
     if (user) {
-      throw 'User already exists'
+      throw {code: 500, message:'duplicated_user'}
     }
     const hash = await bcrypt.hash(req.body.password, 10);
     const request = new User({
@@ -47,14 +45,11 @@ export const signup = async (req, res, next) => {
       password: hash,
       refreshToken: Crypto.randomBytes(64).toString('hex'),
     });
-    request.save().then(() => res.status(200).json({
-      message: 'user created',
+    request.save().then(() => res.status(201).json({
+      message: 'Successfully_created',
     }));
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      error: e,
-    });
+    error(res, e);
   }
 };
 
@@ -66,14 +61,20 @@ export const generateKey = (req, res, next) => {
 };
 
 export const generateAccessToken = async (req, res, next) => {
-  const user = await User.where({ _id: req.body.id }).findOne();
-  if (user.refreshToken === req.body.refreshToken) {
-    res.status(200).json({
-      accessToken: jwt.sign(
-        { id: user._id, name: user.name },
-        process.env.privateKey,
-        { expiresIn: '900s' }
-      ),
-    });
+  try {
+    check(req.body.id, 'user_id');
+    check(req.body.refreshToken, 'refreshToken');
+    const user = await User.where({ _id: req.body.id }).findOne();
+    if (user.refreshToken === req.body.refreshToken) {
+      res.status(200).json({
+        accessToken: jwt.sign(
+          { id: user._id, name: user.name },
+          process.env.privateKey,
+          { expiresIn: '900s' }
+        ),
+      });
+    }
+  } catch (e) {
+    error(res, e);
   }
 };
