@@ -1,31 +1,26 @@
 import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
-import User from '../models/user.js';
+import User from '../../core/models/user.js';
 import bcrypt from 'bcrypt';
 
-import { error, check } from '../utils.js';
+import { error, check } from '../../utils.js';
 
 export const login = async (req, res, next) => {
   try {
-    check(req.body.name, 'name');
-    check(req.body.password, 'password');
+    check(req.body.name, 'missing_name');
+    check(req.body.password, 'missing_password');
     const user = await User.where({ name: req.body.name }).findOne();
-    if (!user) {
-      throw { code: 404, message:'unknown_user' }
-    }
+    check(user, 'unknown_user', 404);
     const result = await bcrypt.compare(req.body.password, user.password)
-    if (result) {
-      res.status(200).json({
-        accesToken: jwt.sign(
-          { id: user._id, name: user.name },
-          process.env.privateKey,
-          { expiresIn: '900s' }
-        ),
-        refreshToken: user.refreshToken,
-      });
-    } else {
-      throw { code: 500, message:'wrong_password' }
-    }
+    check(result, 'wrong_password', 500);
+    res.status(200).json({
+      accesToken: jwt.sign(
+        { id: user._id, name: user.name },
+        process.env.privateKey,
+        { expiresIn: '900s' }
+      ),
+      refreshToken: user.refreshToken,
+    });
   } catch (e) {
     error(res, e);
   }
@@ -33,12 +28,10 @@ export const login = async (req, res, next) => {
 
 export const signup = async (req, res, next) => {
   try {
-    check(req.body.name, 'name');
-    check(req.body.password, 'password');
+    check(req.body.name, 'missing_name');
+    check(req.body.password, 'missing_password');
     const user = await User.where({ name: req.body.name }).findOne();
-    if (user) {
-      throw {code: 500, message:'duplicated_user'}
-    }
+    check(!user, 'duplicated_user', 500);
     const hash = await bcrypt.hash(req.body.password, 10);
     const request = new User({
       name: req.body.name,
@@ -61,8 +54,8 @@ export const generatePrivateKey = (req, res, next) => {
 
 export const generateAccessToken = async (req, res, next) => {
   try {
-    check(req.body.id, 'user_id');
-    check(req.body.refreshToken, 'refreshToken');
+    check(req.body.id, 'missing_user_id');
+    check(req.body.refreshToken, 'missing_refreshToken');
     const user = await User.where({ _id: req.body.id }).findOne();
     if (user.refreshToken !== req.body.refreshToken) {
       throw {code: 500, message:'unknown_refresh_token'}
@@ -71,7 +64,7 @@ export const generateAccessToken = async (req, res, next) => {
       accessToken: jwt.sign(
         { id: user._id, name: user.name },
         process.env.privateKey,
-        { expiresIn: '900s' }
+        { expiresIn: '120s' }
       ),
     });
   } catch (e) {
