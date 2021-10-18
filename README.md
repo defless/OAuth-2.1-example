@@ -37,7 +37,35 @@ You can now try the api routes using this postman collection   ⬇️
 
 | Method | Url | Content | Action |
 | --- | --- | --- | --- |
-| POST | /api/auth/signup | body: `name, password` | Register a new user |
-| POST | /api/auth/login | body: `name, password` | Login as a registered user|
-| POST | /api/auth/generatePk | `null` | Generate a new hash as private key |
-| GET | /api/private | header: access token as Bearer token | Return a protected route|
+| POST | /api/auth/signup | name, password | Register a new user |
+| POST | /api/auth/login | name, password | Login and return access & refresh tokens|
+| POST | /api/auth/generateAt | id, refresh token | Generate a new access token |
+| GET | /api/auth/generatePk | null | Generate a new hash as private key |
+| GET | /api/private | access token as Bearer token | Return a protected route|
+
+
+# About OAuth 2.0
+
+I won't reinvent the wheel so I suggest you to read the [The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749) from the Internet Engineering Task Force. It's maybe not the most beautiful documentation but it's by far one of the most complete and accurate. 
+
+Here's the basic protocol flow:
+
+```
+     +--------+                               +---------------+
+     |        |--(A)- Authorization Request ->|   Resource    |
+     |        |                               |     Owner     |
+     |        |<-(B)-- Authorization Grant ---|               |
+     |        |                               +---------------+
+     |        |
+     |        |                               +---------------+
+     |        |--(C)-- Authorization Grant -->| Authorization |
+     | Client |                               |     Server    |
+     |        |<-(D)----- Access Token -------|               |
+     |        |                               +---------------+
+     |        |
+     |        |                               +---------------+
+     |        |--(E)----- Access Token ------>|    Resource   |
+     |        |                               |     Server    |
+     |        |<-(F)--- Protected Resource ---|               |
+     +--------+                               +---------------+
+```
