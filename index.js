@@ -10,9 +10,9 @@ dotenv.config()
 const app = express();
 const port = 3000;
 
-mongoose.connect('mongodb://localhost:27017/basicAuth',
-  { useNewUrlParser: true,
-    useUnifiedTopology: true })
+mongoose.connect(
+  'mongodb://localhost:27017/basicAuth',
+  { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('[Basic-Auth] Successfully connected mongo'.green))
   .catch(() => console.log('[Basic-Auth] Failed to connect mongo'.red));
 
@@ -20,10 +20,6 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/private', privateServiceRoutes);
-
-app.get('/', (req, res) => {
-  res.send('API is working')
-});
 
 app.listen(port, () => {
   console.log(`[Basic-Auth] App is listening at http://localhost:${port}`.green)

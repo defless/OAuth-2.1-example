@@ -64,15 +64,16 @@ export const generateAccessToken = async (req, res, next) => {
     check(req.body.id, 'user_id');
     check(req.body.refreshToken, 'refreshToken');
     const user = await User.where({ _id: req.body.id }).findOne();
-    if (user.refreshToken === req.body.refreshToken) {
-      res.status(200).json({
-        accessToken: jwt.sign(
-          { id: user._id, name: user.name },
-          process.env.privateKey,
-          { expiresIn: '900s' }
-        ),
-      });
+    if (user.refreshToken !== req.body.refreshToken) {
+      throw {code: 500, message:'unknown_refresh_token'}
     }
+    res.status(200).json({
+      accessToken: jwt.sign(
+        { id: user._id, name: user.name },
+        process.env.privateKey,
+        { expiresIn: '900s' }
+      ),
+    });
   } catch (e) {
     error(res, e);
   }
