@@ -1,9 +1,9 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import User from '../../core/models/user.js';
 
-import { privateAction } from '../controllers/privateService.js';
-import { error } from '../utils.js';
+import { privateAction } from './resources.js';
+import { error } from '../../utils.js';
 
 const router = express.Router();
 

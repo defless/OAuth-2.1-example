@@ -6,7 +6,7 @@ import {
   signup,
   generatePrivateKey,
   generateAccessToken,
-} from '../controllers/auth.js';
+} from './auth.js';
 
 router.post('/login', login);
 router.post('/signup', signup);
