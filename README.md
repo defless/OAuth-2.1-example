@@ -23,7 +23,7 @@ Then just run the following start command:
 yarn start # or using npm: npm start
 ```
 
-The auth server is by default listening on port 4000
+The auth server is by default listening on port 4000 </br>
 The Resource server is by default listening on port 3000
 
 # Try it
