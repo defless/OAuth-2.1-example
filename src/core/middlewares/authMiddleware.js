@@ -7,7 +7,7 @@ export default async (req, res, next) => {
     check(req.headers.authorization, 'authorization_header');
     const token = req.headers.authorization.split(" ")[1];
     const userId = jwt.verify(token, process.env.privateKey).id
-    const user = await User.findById(userId);
+    const user = await User.model.findById(userId);
     check(user, 'unauthorized', 401);
     next();
   } catch (e) {
