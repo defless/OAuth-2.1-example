@@ -9,10 +9,11 @@ export const login = async (req, res, next) => {
   try {
     check(req.body.name, 'missing_name');
     check(req.body.password, 'missing_password');
-    const user = await User.where({ name: req.body.name }).findOne();
+    const user = await User.findOne({ name: req.body.name });
+    console.log(req.body.password, user.password);
     check(user, 'unknown_user', 404);
     const result = await bcrypt.compare(req.body.password, user.password)
-    check(result, 'wrong_password', 500);
+    check(result, 'Bad_request', 400);
     res.status(200).json({
       accesToken: jwt.sign(
         { id: user._id, name: user.name },
@@ -30,9 +31,9 @@ export const signup = async (req, res, next) => {
   try {
     check(req.body.name, 'missing_name');
     check(req.body.password, 'missing_password');
-    const user = await User.where({ name: req.body.name }).findOne();
+    const user = await User.findOne({ name: req.body.name });
     check(!user, 'duplicated_user', 500);
-    const hash = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const request = new User({
       name: req.body.name,
       password: hash,
@@ -56,7 +57,7 @@ export const generateAccessToken = async (req, res, next) => {
   try {
     check(req.body.id, 'missing_user_id');
     check(req.body.refreshToken, 'missing_refreshToken');
-    const user = await User.where({ _id: req.body.id }).findOne();
+    const user = await User.findById(userId);
     if (user.refreshToken !== req.body.refreshToken) {
       throw {code: 500, message:'unknown_refresh_token'}
     }
