@@ -2,14 +2,12 @@ import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import User from '../../core/models/user.js';
 import bcrypt from 'bcrypt';
-import Joi from 'joi';
 
 import { error, check } from '../../utils.js';
 
 export const login = async (req, res, next) => {
   try {
-    await User.schema.validateAsync(req.body);
-    const user = await User.model.findOne({ name: req.body.name });
+    const user = await User.findOne({ name: req.body.name });
     check(user, 'unknown_user', 404);
     const result = await bcrypt.compare(req.body.password, user.password)
     check(result, 'Bad_request', 400);
@@ -28,7 +26,6 @@ export const login = async (req, res, next) => {
 
 export const signup = async (req, res, next) => {
   try {
-    await User.schema.validateAsync(req.body);
     const user = await User.model.findOne({ name: req.body.name });
     check(!user, 'duplicated_user', 500);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -55,7 +52,7 @@ export const generateAccessToken = async (req, res, next) => {
   try {
     check(req.body.id, 'missing_user_id');
     check(req.body.refreshToken, 'missing_refreshToken');
-    const user = await User.model.findById(userId);
+    const user = await User.findById(userId);
     if (user.refreshToken !== req.body.refreshToken) {
       throw {code: 500, message:'unknown_refresh_token'}
     }
