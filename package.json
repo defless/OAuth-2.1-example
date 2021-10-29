@@ -1,16 +1,18 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node ./scripts/start"
+    "start": "node ./scripts/start",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
     "colors": "^1.4.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "joi": "^17.4.2",
+    "jest": "^27.3.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.11",
+    "node-fetch": "^3.0.0",
     "nodemon": "^2.0.13"
   }
 }
