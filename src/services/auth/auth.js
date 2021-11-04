@@ -26,10 +26,10 @@ export const login = async (req, res, next) => {
 
 export const signup = async (req, res, next) => {
   try {
-    const user = await User.model.findOne({ name: req.body.name });
+    const user = await User.findOne({ name: req.body.name });
     check(!user, 'duplicated_user', 500);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const request = new User.model({
+    const request = new User({
       name: req.body.name,
       password: hashedPassword,
       refreshToken: Crypto.randomBytes(64).toString('hex'),
