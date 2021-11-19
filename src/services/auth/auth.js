@@ -7,6 +7,7 @@ import { error, check } from '../../utils.js';
 
 export const login = async (req, res, next) => {
   try {
+    console.log('itsok')
     const user = await User.findOne({ name: req.body.name });
     check(user, 'unknown_user', 404);
     const result = await bcrypt.compare(req.body.password, user.password)
