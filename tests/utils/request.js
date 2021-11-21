@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 
 export const request = (server, opts) => fetch(`http://localhost:${server.address().port + opts.url}`, {
   ...opts,
+  body: JSON.stringify(opts.body),
   headers: {
     'Content-Type': 'application/json',
     ...opts.headers,
