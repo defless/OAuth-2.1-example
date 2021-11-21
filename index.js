@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import mongoose from 'mongoose';
 import colors from 'colors';
 
+import Server from './src/core/server.js';
 import authRoutes from './src/services/auth/index.js';
 import resourcesRoutes from './src/services/resources/index.js';
 
@@ -13,13 +14,9 @@ const services = [
   { name: 'resources', port: 3000, routes: resourcesRoutes},
 ];
 
-services.map( service => {
-  const app = express();
-  app.listen(service.port, () => {
-    console.log(`[Basic-Auth-${service.name}] running on port ${service.port}`.green)
-  });
-  app.use(express.json());
-  app.use(`/api/${service.name}`, service.routes);
+services.map( async service => {
+  const app = await Server(service, '/api');
+  app.start();
 })
 
 mongoose.connect(

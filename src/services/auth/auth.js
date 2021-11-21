@@ -10,11 +10,11 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ name: req.body.name });
     check(user, 'unknown_user', 404);
     const result = await bcrypt.compare(req.body.password, user.password)
-    check(result, 'Bad_request', 400);
+    check(result, 'bad_request', 400);
     res.status(200).json({
       accesToken: jwt.sign(
         { id: user._id, name: user.name },
-        process.env.privateKey,
+        process.env.privateKey || 'privateKey',
         { expiresIn: '900s' }
       ),
       refreshToken: user.refreshToken,
@@ -26,16 +26,16 @@ export const login = async (req, res, next) => {
 
 export const signup = async (req, res, next) => {
   try {
-    const user = await User.model.findOne({ name: req.body.name });
+    const user = await User.findOne({ name: req.body.name });
     check(!user, 'duplicated_user', 500);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const request = new User.model({
+    const request = new User({
       name: req.body.name,
       password: hashedPassword,
       refreshToken: Crypto.randomBytes(64).toString('hex'),
     });
     request.save().then(() => res.status(201).json({
-      message: 'Successfully_created',
+      message: 'successfully_created',
     }));
   } catch (e) {
     error(res, e);
@@ -52,14 +52,14 @@ export const generateAccessToken = async (req, res, next) => {
   try {
     check(req.body.id, 'missing_user_id');
     check(req.body.refreshToken, 'missing_refreshToken');
-    const user = await User.findById(userId);
+    const user = await User.findById(req.body.id);
     if (user.refreshToken !== req.body.refreshToken) {
       throw {code: 500, message:'unknown_refresh_token'}
     }
     res.status(200).json({
       accessToken: jwt.sign(
         { id: user._id, name: user.name },
-        process.env.privateKey,
+        process.env.privateKey || 'privateKey',
         { expiresIn: '120s' }
       ),
     });
