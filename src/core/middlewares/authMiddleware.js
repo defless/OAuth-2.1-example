@@ -8,7 +8,7 @@ export default async (req, res, next) => {
     const token = req.headers.authorization.split(" ")[1];
     const userId = jwt.verify(token, process.env.privateKey).id
     const user = await User.model.findById(userId);
-    check(user, 'unauthorized', 401);
+    check(user, 'unauthorized_client', 401);
     next();
   } catch (e) {
     error(res, e);

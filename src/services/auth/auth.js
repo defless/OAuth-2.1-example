@@ -5,19 +5,32 @@ import bcrypt from 'bcrypt';
 
 import { error, check } from '../../utils.js';
 
-export const login = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
+  let user;
   try {
-    const user = await User.findOne({ name: req.body.name });
-    check(user, 'unknown_user', 404);
-    const result = await bcrypt.compare(req.body.password, user.password)
-    check(result, 'bad_request', 400);
+    check(req.body.grant_type, 'invalid_request');
+    if (req.body.grant_type === 'password') {
+      user = await User.findOne({ name: req.body.name });
+      check(user, 'unknown_user', 404);
+      const result = await bcrypt.compare(req.body.password, user.password)
+      check(result, 'invalid_grant', 400);
+    } else { // req.body.grant_type === 'refresh_token'
+      check(req.body.id, 'invalid_request');
+      check(req.body.refreshToken, 'invalid_request');
+      user = await User.findById(req.body.id);
+      if (user.refreshToken !== req.body.refreshToken) { //then should check it's still valid
+        throw {code: 500, message:'invalid_grant'} 
+      }
+    }  
     res.status(200).json({
-      accesToken: jwt.sign(
+      access_token: jwt.sign(
         { id: user._id, name: user.name },
         process.env.privateKey || 'privateKey',
         { expiresIn: '900s' }
       ),
-      refreshToken: user.refreshToken,
+      token_type: 'Bearer',
+      expires_in: 900,
+      refresh_token: user.refreshToken, // should generater new refresh token each time
     });
   } catch (e) {
     error(res, e);
@@ -37,32 +50,6 @@ export const signup = async (req, res, next) => {
     request.save().then(() => res.status(201).json({
       message: 'successfully_created',
     }));
-  } catch (e) {
-    error(res, e);
-  }
-};
-
-export const generatePrivateKey = (req, res, next) => {
-  const privateKey = Crypto.randomBytes(64).toString('hex');
-  process.env['privateKey'] = privateKey;
-  res.status(200).json({privateKey});
-};
-
-export const generateAccessToken = async (req, res, next) => {
-  try {
-    check(req.body.id, 'missing_user_id');
-    check(req.body.refreshToken, 'missing_refreshToken');
-    const user = await User.findById(req.body.id);
-    if (user.refreshToken !== req.body.refreshToken) {
-      throw {code: 500, message:'unknown_refresh_token'}
-    }
-    res.status(200).json({
-      accessToken: jwt.sign(
-        { id: user._id, name: user.name },
-        process.env.privateKey || 'privateKey',
-        { expiresIn: '120s' }
-      ),
-    });
   } catch (e) {
     error(res, e);
   }
