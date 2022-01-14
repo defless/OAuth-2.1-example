@@ -2,15 +2,11 @@ import express from 'express';
 const router = express.Router();
 
 import {
-  login,
+  authenticate,
   signup,
-  generatePrivateKey,
-  generateAccessToken,
 } from './auth.js';
 
-router.post('/login', login);
+router.post('/authenticate', authenticate);
 router.post('/signup', signup);
-router.post('/generatePk', generatePrivateKey);
-router.post('/generateAt', generateAccessToken);
 
 export default router;
