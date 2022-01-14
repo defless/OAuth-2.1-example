@@ -59,7 +59,7 @@ describe('/auth', () => {
     });
   });
 
-  describe('POST /auth/login', () => {
+  describe('POST /auth/authenticate', () => {
     test('should successfully login', async () => {
       const encrypted_password = await bcrypt.hash('password', 10);
         await new User({
@@ -69,23 +69,25 @@ describe('/auth', () => {
         }).save();
 
       const req = await post(server, {
-        url: '/api-test/auth/login',
+        url: '/api-test/auth/authenticate',
         body: {
           name: 'test',
-          password: 'password'
+          password: 'password',
+          grant_type: 'password'
         },
       });
 
       const res = await req.json();
-      expect(res.refreshToken).toBe('refreshTest');
+      expect(res.refresh_token).toBe('refreshTest');
     });
 
     test('should throw a 404 for unknown user', async () => {
       const req = await post(server, {
-        url: '/api-test/auth/login',
+        url: '/api-test/auth/authenticate',
         body: {
           name: 'user',
-          password: 'password'
+          password: 'password',
+          grant_type: 'password'
         },
       });
       const res = await req.json();
@@ -104,20 +106,19 @@ describe('/auth', () => {
 
 
       const req = await post(server, {
-        url: '/api-test/auth/login',
+        url: '/api-test/auth/authenticate',
         body: {
           name: 'user',
           password: 'test',
+          grant_type: 'password'
         },
       });
       const res = await req.json();
       
       expect(req.status).toBe(400);
-      expect(res.error).toBe('bad_request');
+      expect(res.error).toBe('invalid_grant');
     });
-  });
 
-  describe('POST /auth/generateAt', () => {
     test('should generate new accessToken', async () => {
       const user = await new User({
         name: 'user',
@@ -126,10 +127,11 @@ describe('/auth', () => {
       }).save();
   
       const req = await post(server, {
-        url: '/api-test/auth/generateAt',
+        url: '/api-test/auth/authenticate',
         body: {
           id: user._id,
           refreshToken: 'refreshTest',
+          grant_type: 'refresh_token'
         },
       });
 
@@ -140,29 +142,31 @@ describe('/auth', () => {
     test('should throw a 400 if user id is missing', async () => {
   
       const req = await post(server, {
-        url: '/api-test/auth/generateAt',
+        url: '/api-test/auth/authenticate',
         body: {
           refreshToken: 'refreshTest',
+          grant_type: 'refresh_token'
         },
       });
       const res = await req.json();
 
       expect(req.status).toBe(400);
-      expect(res.error).toBe('missing_user_id');
+      expect(res.error).toBe('invalid_request');
     });
 
     test('should throw a 400 if refreshToken is missing', async () => {
   
       const req = await post(server, {
-        url: '/api-test/auth/generateAt',
+        url: '/api-test/auth/authenticate',
         body: {
-          id: 'id'
+          id: 'id',
+          grant_type: 'refresh_token'
         },
       });
       const res = await req.json();
 
       expect(req.status).toBe(400);
-      expect(res.error).toBe('missing_refreshToken');
+      expect(res.error).toBe('invalid_request');
     });
 
     test('should throw a 500 if the refreshToken is wrong', async () => {
@@ -173,16 +177,17 @@ describe('/auth', () => {
       }).save();
   
       const req = await post(server, {
-        url: '/api-test/auth/generateAt',
+        url: '/api-test/auth/authenticate',
         body: {
           id: user._id,
           refreshToken: 'test',
+          grant_type: 'refresh_token'
         },
       });
       const res = await req.json();
 
       expect(req.status).toBe(500);
-      expect(res.error).toBe('unknown_refresh_token');
+      expect(res.error).toBe('invalid_grant');
     });
   });
 
