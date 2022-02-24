@@ -3,7 +3,7 @@ import {jest} from '@jest/globals';
 import mongoose from 'mongoose';
 
 import User from '../../src/core/models/user';
-import Server from '../../src/core/Server.js';
+import Server from '../../src/core/server.js';
 import authRoutes from '../../src/services/auth/index.js';
 
 import { post } from '../utils/request.js';
