@@ -78,7 +78,9 @@ describe('/auth', () => {
       });
 
       const res = await req.json();
-      expect(res.refresh_token).toBe('refreshTest');
+      
+      expect(res.refresh_token).not.toBe('refreshTest');
+      expect(req.status).toBe(200);
     });
 
     test('should throw a 404 for unknown user', async () => {
