@@ -9,9 +9,10 @@ import authRoutes from '../../src/services/auth/index.js';
 import { post } from '../utils/request.js';
 import { TestWatcher } from '@jest/core';
 
+jest.useFakeTimers();
+
 describe('/auth', () => {
   let server;
-  jest.useFakeTimers();
 
   beforeAll(async () => {
     await mongoose.connect(
