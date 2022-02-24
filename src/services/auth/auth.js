@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 import { error, check } from '../../utils.js';
 
-export const authenticate = async (req, res, next) => {
+export const authenticate = async (req, res) => {
   let user;
   try {
     check(req.body.grant_type, 'invalid_request');
@@ -18,10 +18,13 @@ export const authenticate = async (req, res, next) => {
       check(req.body.id, 'invalid_request');
       check(req.body.refreshToken, 'invalid_request');
       user = await User.findById(req.body.id);
-      if (user.refreshToken !== req.body.refreshToken) { //then should check it's still valid
+      if (user.refreshToken !== req.body.refreshToken) {
         throw {code: 500, message:'invalid_grant'} 
       }
-    }  
+    }
+    const new_refresh_token = Crypto.randomBytes(64).toString('hex');
+    user.refreshToken = new_refresh_token;
+    user.save();
     res.status(200).json({
       access_token: jwt.sign(
         { id: user._id, name: user.name },
@@ -30,7 +33,7 @@ export const authenticate = async (req, res, next) => {
       ),
       token_type: 'Bearer',
       expires_in: 900,
-      refresh_token: user.refreshToken, // should generater new refresh token each time
+      refresh_token: user.refreshToken,
     });
   } catch (e) {
     error(res, e);
