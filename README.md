@@ -39,9 +39,8 @@ You can now try the api routes using this postman collection   ⬇️
 | Method | Url | Content | Action |
 | --- | --- | --- | --- |
 | POST | /api/auth/signup | name, password | Register a new user |
-| POST | /api/auth/login | name, password | Login and return access & refresh tokens|
-| POST | /api/auth/generateAt | id, refresh token | Generate a new access token |
-| GET | /api/auth/generatePk | null | Generate a new hash as private key |
+| POST | /api/auth/authenticate | grant_type='password, name, password | authenticate with credentials and return access & refresh tokens|
+| POST | /api/auth/authenticate | grant_type='refresh_token, id | authenticate with refresh token and return access token & new refresh token|
 | GET | /api/resources | access token as Bearer token | Return a protected route|
 
 
