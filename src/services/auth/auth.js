@@ -31,7 +31,7 @@ const grantWithRefresh = async (req, res) => {
   check(req.body.refresh_token, 'invalid_request');
   const user = await User.findById(req.body.id);
   if (user.refresh_token !== req.body.refresh_token) {
-    throw { code: 500, message: 'invalid_grant' };
+    throw { code: 400, message: 'invalid_grant' };
   }
   res.status(200).json({
     access_token: jwt.sign(

@@ -48,7 +48,7 @@ describe('/auth', () => {
         url: '/api-test/auth/signup',
         body: {
           name: 'user',
-          password: 'password'
+          password: 'password',
         },
       });
       const res = await req.json();
@@ -110,7 +110,7 @@ describe('/auth', () => {
         body: {
           name: 'user',
           password: 'test',
-          grant_type: 'password'
+          grant_type: 'password',
         },
       });
       const res = await req.json();
@@ -123,14 +123,14 @@ describe('/auth', () => {
       const user = await new User({
         name: 'user',
         password: 'password',
-        refreshToken: 'refreshTest',
+        refresh_token: 'refreshTest',
       }).save();
 
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           id: user._id,
-          refreshToken: 'refreshTest',
+          refresh_token: 'refreshTest',
           grant_type: 'refresh_token',
         },
       });
@@ -166,24 +166,24 @@ describe('/auth', () => {
       expect(res.error).toBe('invalid_request');
     });
 
-    test('should throw a 500 if the refreshToken is wrong', async () => {
+    test('should throw a 400 if the refreshToken is wrong', async () => {
       const user = await new User({
         name: 'user',
         password: 'password',
-        refreshToken: 'refreshTest',
+        refresh_token: 'refreshTest',
       }).save();
 
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           id: user._id,
-          refreshToken: 'test',
+          refresh_token: 'test',
           grant_type: 'refresh_token',
         },
       });
       const res = await req.json();
 
-      expect(req.status).toBe(500);
+      expect(req.status).toBe(400);
       expect(res.error).toBe('invalid_grant');
     });
   });
