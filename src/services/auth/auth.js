@@ -44,6 +44,21 @@ const grantWithRefresh = async (req, res) => {
   });
 };
 
+const grantWithOneTimeCode = async (req, res) => {
+  check(req.body.authorization_code, 'invalid_request');
+  const user = await User.find({ authorization_code: req.body.authorization_code });
+  check(user, 'invalid_grant', 400);
+  res.status(200).json({
+    access_token: jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.privateKey || 'privateKey',
+      { expiresIn: '900s' },
+    ),
+    token_type: 'Bearer',
+    expires_in: 900,
+  });
+};
+
 export const authenticate = async (req, res) => {
   try {
     check(req.body.grant_type, 'invalid_request');
@@ -55,6 +70,11 @@ export const authenticate = async (req, res) => {
       case 'refresh_token':
         await grantWithRefresh(req, res);
         break;
+
+      case 'authorization_code':
+        await grantWithOneTimeCode(req, res);
+        break;
+
       default:
         throw { code: 400, message: 'invalid_grant_type' };
     }
