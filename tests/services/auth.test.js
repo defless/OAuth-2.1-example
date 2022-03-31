@@ -1,12 +1,11 @@
 import bcrypt from 'bcrypt';
-import {jest} from '@jest/globals';
 import mongoose from 'mongoose';
 
 import User from '../../src/core/models/user';
-import Server from '../../src/core/server.js';
-import authRoutes from '../../src/services/auth/index.js';
+import Server from '../../src/core/server';
+import authRoutes from '../../src/services/auth/index';
 
-import { post } from '../utils/request.js';
+import { post } from '../utils/request';
 
 describe('/auth', () => {
   let server;
@@ -14,11 +13,12 @@ describe('/auth', () => {
   beforeAll(async () => {
     await mongoose.connect(
       'mongodb://localhost:27017/basicAuthTest',
-      { useNewUrlParser: true, useUnifiedTopology: true })
+      { useNewUrlParser: true, useUnifiedTopology: true },
+    )
       .then(() => console.log('[Basic-Auth-test-database] Successfully connected mongo'.green))
       .catch(() => console.log('[Basic-Auth-test-database] Failed to connect mongo'.red));
     const app = await Server(
-      { name: 'auth', port: 4000, routes: authRoutes},
+      { name: 'auth', port: 4000, routes: authRoutes },
       '/api-test',
     );
     server = await app.start();
@@ -30,7 +30,7 @@ describe('/auth', () => {
         url: '/api-test/auth/signup',
         body: {
           name: 'user',
-          password: 'password'
+          password: 'password',
         },
       });
       const res = await req.json();
@@ -60,24 +60,24 @@ describe('/auth', () => {
 
   describe('POST /auth/authenticate', () => {
     test('should successfully login', async () => {
-      const encrypted_password = await bcrypt.hash('password', 10);
-        await new User({
-          name: 'test',
-          password: encrypted_password,
-          refreshToken: 'refreshTest',
-        }).save();
+      const encryptedPassword = await bcrypt.hash('password', 10);
+      await new User({
+        name: 'test',
+        password: encryptedPassword,
+        refreshToken: 'refreshTest',
+      }).save();
 
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           name: 'test',
           password: 'password',
-          grant_type: 'password'
+          grant_type: 'password',
         },
       });
 
       const res = await req.json();
-      
+
       expect(res.refresh_token).not.toBe('refreshTest');
       expect(req.status).toBe(200);
     });
@@ -88,23 +88,22 @@ describe('/auth', () => {
         body: {
           name: 'user',
           password: 'password',
-          grant_type: 'password'
+          grant_type: 'password',
         },
       });
       const res = await req.json();
-      
+
       expect(req.status).toBe(404);
       expect(res.error).toBe('unknown_user');
     });
 
     test('should throw a 400 for wrong password', async () => {
-      const encrypted_password = await bcrypt.hash('password', 10);
+      const encryptedPassword = await bcrypt.hash('password', 10);
       await new User({
         name: 'user',
-        password: encrypted_password,
+        password: encryptedPassword,
         refreshToken: 'refreshTest',
       }).save();
-
 
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
@@ -115,7 +114,7 @@ describe('/auth', () => {
         },
       });
       const res = await req.json();
-      
+
       expect(req.status).toBe(400);
       expect(res.error).toBe('invalid_grant');
     });
@@ -126,27 +125,25 @@ describe('/auth', () => {
         password: 'password',
         refreshToken: 'refreshTest',
       }).save();
-  
+
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           id: user._id,
           refreshToken: 'refreshTest',
-          grant_type: 'refresh_token'
+          grant_type: 'refresh_token',
         },
       });
 
       expect(req.status).toBe(200);
-      //add check to jwt
     });
 
     test('should throw a 400 if user id is missing', async () => {
-  
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           refreshToken: 'refreshTest',
-          grant_type: 'refresh_token'
+          grant_type: 'refresh_token',
         },
       });
       const res = await req.json();
@@ -156,12 +153,11 @@ describe('/auth', () => {
     });
 
     test('should throw a 400 if refreshToken is missing', async () => {
-  
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           id: 'id',
-          grant_type: 'refresh_token'
+          grant_type: 'refresh_token',
         },
       });
       const res = await req.json();
@@ -176,13 +172,13 @@ describe('/auth', () => {
         password: 'password',
         refreshToken: 'refreshTest',
       }).save();
-  
+
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
           id: user._id,
           refreshToken: 'test',
-          grant_type: 'refresh_token'
+          grant_type: 'refresh_token',
         },
       });
       const res = await req.json();

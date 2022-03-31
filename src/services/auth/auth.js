@@ -1,23 +1,24 @@
 import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
-import User from '../../core/models/user.js';
 import bcrypt from 'bcrypt';
 
-import { error, check } from '../../utils.js';
+import User from '../../core/models/user';
+
+import { error, check } from '../../utils';
 
 const grantWithPassword = async (req, res) => {
   const user = await User.findOne({ name: req.body.name });
   check(user, 'unknown_user', 404);
-  const result = await bcrypt.compare(req.body.password, user.password)
+  const result = await bcrypt.compare(req.body.password, user.password);
   check(result, 'invalid_grant', 400);
-  const new_refresh_token = Crypto.randomBytes(64).toString('hex');
-  user.refresh_token = new_refresh_token;
+  const newRefreshToken = Crypto.randomBytes(64).toString('hex');
+  user.refresh_token = newRefreshToken;
   user.save();
   res.status(200).json({
     access_token: jwt.sign(
       { id: user._id, name: user.name },
       process.env.privateKey || 'privateKey',
-      { expiresIn: '900s' }
+      { expiresIn: '900s' },
     ),
     token_type: 'Bearer',
     expires_in: 900,
@@ -30,13 +31,13 @@ const grantWithRefresh = async (req, res) => {
   check(req.body.refresh_token, 'invalid_request');
   const user = await User.findById(req.body.id);
   if (user.refresh_token !== req.body.refresh_token) {
-    throw {code: 500, message:'invalid_grant'} 
+    throw { code: 500, message: 'invalid_grant' };
   }
   res.status(200).json({
     access_token: jwt.sign(
       { id: user._id, name: user.name },
       process.env.privateKey || 'privateKey',
-      { expiresIn: '900s' }
+      { expiresIn: '900s' },
     ),
     token_type: 'Bearer',
     expires_in: 900,
@@ -53,11 +54,10 @@ export const authenticate = async (req, res) => {
 
       case 'refresh_token':
         await grantWithRefresh(req, res);
-        break; 
-        
+        break;
       default:
-        throw {code: 400, message:'invalid_grant_type'}
-    }  
+        throw { code: 400, message: 'invalid_grant_type' };
+    }
   } catch (e) {
     error(res, e);
   }
