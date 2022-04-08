@@ -28,12 +28,6 @@ The Resource server is by default listening on port 3000
 
 # Try it
 
-You can now try the api routes using this postman collection   ⬇️
-
-</br>
-
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/13815486-9b79f65f-be11-4928-94e1-90c902579f65?action=collection%2Ffork&collection-url=entityId%3D13815486-9b79f65f-be11-4928-94e1-90c902579f65%26entityType%3Dcollection%26workspaceId%3D71afb205-34e7-4c58-9c00-f3cc105b0da0)
-
 </br>
 
 | Method | Url | Content | Action |
@@ -41,7 +35,7 @@ You can now try the api routes using this postman collection   ⬇️
 | POST | /api/auth/signup | name, password | Register a new user |
 | POST | /api/auth/authenticate | grant_type='password, name, password | authenticate with credentials and return access & refresh tokens|
 | POST | /api/auth/authenticate | grant_type='refresh_token, id | authenticate with refresh token and return access token & new refresh token|
-| GET | /api/resources | access token as Bearer token | Return a protected route|
+| GET | /api/resources | access token as Bearer token | Return a protected ressource|
 
 
 # About OAuth 2.0
