@@ -2,9 +2,9 @@ import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-import User from '../../core/models/User';
+import User from '../../core/models/User.js';
 
-import { error, check } from '../../utils';
+import { error, check } from '../../utils.js';
 
 const grantWithPassword = async (req, res) => {
   const user = await User.findOne({ name: req.body.name });

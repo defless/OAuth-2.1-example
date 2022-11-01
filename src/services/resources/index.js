@@ -1,6 +1,6 @@
 import express from 'express';
-import { privateAction } from './resources';
-import authMiddleware from '../../core/middlewares/authMiddleware';
+import { privateAction } from './resources.js';
+import authMiddleware from '../../core/middlewares/authMiddleware.js';
 
 const router = express.Router();
 

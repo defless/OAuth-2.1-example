@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 // eslint-disable-next-line
 import colors from 'colors';
 
-import Server from './src/core/server';
-import authRoutes from './src/services/auth/index';
-import resourcesRoutes from './src/services/resources/index';
+import Server from './src/core/server.js';
+import authRoutes from './src/services/auth/index.js';
+import resourcesRoutes from './src/services/resources/index.js';
 
 dotenv.config();
 

@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
-import User from '../../src/core/models/User';
-import Server from '../../src/core/server';
-import authRoutes from '../../src/services/auth/index';
+import User from '../../src/core/models/User.js';
+import Server from '../../src/core/server.js';
+import authRoutes from '../../src/services/auth/index.js';
 
-import { post } from '../utils/request';
+import { post } from '../utils/request.js';
 
 describe('/auth', () => {
   let server;
