@@ -1,46 +1,89 @@
 import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
-import User from '../../core/models/user.js';
 import bcrypt from 'bcrypt';
 
-import { error, check } from '../../utils.js';
+import User from '../../core/models/user';
+
+import { error, check } from '../../utils';
+
+const grantWithPassword = async (req, res) => {
+  const user = await User.findOne({ name: req.body.name });
+  check(user, 'unknown_user', 404);
+  const result = await bcrypt.compare(req.body.password, user.password);
+  check(result, 'invalid_grant', 400);
+  const newRefreshToken = Crypto.randomBytes(64).toString('hex');
+  user.refresh_token = newRefreshToken;
+  user.save();
+  res.status(200).json({
+    access_token: jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.privateKey || 'privateKey',
+      { expiresIn: '900s' },
+    ),
+    token_type: 'Bearer',
+    expires_in: 900,
+    refresh_token: user.refresh_token,
+  });
+};
+
+const grantWithRefresh = async (req, res) => {
+  check(req.body.id, 'invalid_request');
+  check(req.body.refresh_token, 'invalid_request');
+  const user = await User.findById(req.body.id);
+  if (user.refresh_token !== req.body.refresh_token) {
+    throw { code: 400, message: 'invalid_grant' };
+  }
+  res.status(200).json({
+    access_token: jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.privateKey || 'privateKey',
+      { expiresIn: '900s' },
+    ),
+    token_type: 'Bearer',
+    expires_in: 900,
+  });
+};
+
+const grantWithOneTimeCode = async (req, res) => {
+  check(req.body.authorization_code, 'invalid_request');
+  const user = await User.find({ authorization_code: req.body.authorization_code });
+  check(user, 'invalid_grant', 400);
+  res.status(200).json({
+    access_token: jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.privateKey || 'privateKey',
+      { expiresIn: '900s' },
+    ),
+    token_type: 'Bearer',
+    expires_in: 900,
+  });
+};
 
 export const authenticate = async (req, res) => {
-  let user;
   try {
     check(req.body.grant_type, 'invalid_request');
-    if (req.body.grant_type === 'password') {
-      user = await User.findOne({ name: req.body.name });
-      check(user, 'unknown_user', 404);
-      const result = await bcrypt.compare(req.body.password, user.password)
-      check(result, 'invalid_grant', 400);
-    } else { // req.body.grant_type === 'refresh_token'
-      check(req.body.id, 'invalid_request');
-      check(req.body.refreshToken, 'invalid_request');
-      user = await User.findById(req.body.id);
-      if (user.refreshToken !== req.body.refreshToken) {
-        throw {code: 500, message:'invalid_grant'} 
-      }
+    switch (req.body.grant_type) {
+      case 'password':
+        await grantWithPassword(req, res);
+        break;
+
+      case 'refresh_token':
+        await grantWithRefresh(req, res);
+        break;
+
+      case 'authorization_code':
+        await grantWithOneTimeCode(req, res);
+        break;
+
+      default:
+        throw { code: 400, message: 'invalid_grant_type' };
     }
-    const new_refresh_token = Crypto.randomBytes(64).toString('hex');
-    user.refreshToken = new_refresh_token;
-    user.save();
-    res.status(200).json({
-      access_token: jwt.sign(
-        { id: user._id, name: user.name },
-        process.env.privateKey || 'privateKey',
-        { expiresIn: '900s' }
-      ),
-      token_type: 'Bearer',
-      expires_in: 900,
-      refresh_token: user.refreshToken,
-    });
   } catch (e) {
     error(res, e);
   }
 };
 
-export const signup = async (req, res, next) => {
+export const signup = async (req, res) => {
   try {
     const user = await User.findOne({ name: req.body.name });
     check(!user, 'duplicated_user', 500);
@@ -48,7 +91,7 @@ export const signup = async (req, res, next) => {
     const request = new User({
       name: req.body.name,
       password: hashedPassword,
-      refreshToken: Crypto.randomBytes(64).toString('hex'),
+      refresh_token: Crypto.randomBytes(64).toString('hex'),
     });
     request.save().then(() => res.status(201).json({
       message: 'successfully_created',

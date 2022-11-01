@@ -1,10 +1,11 @@
 import express from 'express';
-const router = express.Router();
 
 import {
   authenticate,
   signup,
-} from './auth.js';
+} from './auth';
+
+const router = express.Router();
 
 router.post('/authenticate', authenticate);
 router.post('/signup', signup);
