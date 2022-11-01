@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+// eslint-disable-next-line
 import colors from 'colors';
 
 if (!fs.existsSync(path.resolve('.env'))) {

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
-import User from '../../src/core/models/user';
+import User from '../../src/core/models/User';
 import Server from '../../src/core/server';
 import authRoutes from '../../src/services/auth/index';
 

@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-import User from '../../core/models/user';
+import User from '../../core/models/User';
 
 import { error, check } from '../../utils';
 
