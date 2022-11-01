@@ -86,7 +86,7 @@ describe('/auth', () => {
       const req = await post(server, {
         url: '/api-test/auth/authenticate',
         body: {
-          name: 'user',
+          name: 'no_user',
           password: 'password',
           grant_type: 'password',
         },
