@@ -6,6 +6,6 @@ const noteSchema = new mongoose.Schema({
   owner: mongoose.Schema.Types.ObjectId,
 }, { timestamps: true });
 
-const Note = mongoose.model('User', noteSchema);
+const Note = mongoose.model('Note', noteSchema);
 
 export default Note;

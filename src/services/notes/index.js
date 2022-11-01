@@ -1,11 +1,19 @@
 import express from 'express';
-import { privateAction } from './resources.js';
+import {
+  getAll,
+  getOne,
+  remove,
+  update,
+} from './notes.js';
 import authMiddleware from '../../core/middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.use(authMiddleware);
 
-router.get('/', privateAction);
+router.get('/', getAll);
+router.get('/:id', getOne);
+router.delete('/:id', remove);
+router.patch('/:id', update);
 
 export default router;
