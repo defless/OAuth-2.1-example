@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+// eslint-disable-next-line
 import colors from 'colors';
 
 import Server from './src/core/server';

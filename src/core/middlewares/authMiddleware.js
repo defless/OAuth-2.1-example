@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/user';
-import { error, check } from '../../utils';
+import User from '../models/User.js';
+import { error, check } from '../../utils.js';
 
 export default async (req, res, next) => {
   try {

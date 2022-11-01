@@ -3,7 +3,7 @@ import express from 'express';
 import {
   authenticate,
   signup,
-} from './auth';
+} from './auth.js';
 
 const router = express.Router();
 

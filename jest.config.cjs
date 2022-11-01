@@ -1,5 +1,5 @@
 module.exports = {
   transform: {},
   timers: 'real',
-  testEnvironment: 'jest-environment-node'
+  testEnvironment: 'jest-environment-node',
 };
