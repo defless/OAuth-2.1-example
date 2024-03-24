@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import mongoose from 'mongoose'
+import 'dotenv/config'
 
 import { content, auth } from './src/routes'
 

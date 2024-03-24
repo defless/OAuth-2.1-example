@@ -25,7 +25,7 @@ const auth = async (fastify: FastifyInstance) => {
             access_token: { type: 'string' },
             token_type: { type: 'string', enum: ['Bearer'] },
             expires_in: { type: 'number' },
-            refresh_token: { type: 'number' }
+            refresh_token: { type: 'string' }
           }
         }
       }
