@@ -14,8 +14,3 @@ export declare interface AuthenticateBody {
   authorization_code?: string;
   grant_type: 'password' | 'refresh_token' | 'authorization_code';
 }
-
-export declare interface CustomError {
-  code: number;
-  message: string;
-}

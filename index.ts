@@ -15,6 +15,10 @@ const fastify = Fastify({
   logger: true
 })
 
+fastify.setErrorHandler((_error, _request, reply) => {
+  reply.status(500).send({ message: 'internal_server_error' })
+})
+
 fastify.register(auth);
 fastify.register(content);
 

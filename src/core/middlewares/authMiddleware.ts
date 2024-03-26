@@ -1,20 +1,19 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
-import { error, check } from '../../utils.js';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export default async (req: FastifyRequest, res: FastifyReply) => {
+export default async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    if (!req.headers.authorization) {
-      throw new Error('authorization_header is missing')
+    if (!request.headers.authorization) {
+      reply.status(400).send({ message: 'missing_authorization_header'});
     }
-    const token = req.headers.authorization.split(' ')[1];
+    const token = request.headers.authorization.split(' ')[1];
     const userId = jwt.verify(token, process.env.privateKey).id;
     const user = await User.findById(userId);
     if (!user) {
-      throw new Error('unauthorized_client')
+      reply.status(401).send({ message: 'unauthorized_client'});
     }
   } catch (e) {
-    error(res, e);
+    throw new Error(e);
   }
 };

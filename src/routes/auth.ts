@@ -34,7 +34,7 @@ const auth = async (fastify: FastifyInstance) => {
   fastify.post(
     '/auth/authenticate',
     authenticateOptions,
-    async (_request, _reply) => authenticate(_request, _reply));
+    async (request, reply) => authenticate(request, reply));
   const signUpOptions: RouteShorthandOptions = {
     schema: {
       body: {
@@ -58,7 +58,7 @@ const auth = async (fastify: FastifyInstance) => {
   fastify.post(
     '/auth/signup',
     signUpOptions,
-    async (_request, _reply) => signup(_request, _reply)
+    async (request, reply) => signup(request, reply)
   );
 };
 
