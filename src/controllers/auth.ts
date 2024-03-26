@@ -32,18 +32,21 @@ const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) =
   });
 };
 
-const grantWithRefreplyh = async (request: FastifyRequest, reply: FastifyReply) => {
+const grantWithRefresh = async (request: FastifyRequest, reply: FastifyReply) => {
   const { id, refresh_token } = request.body as AuthenticateBody;
   const user = await User.findById(id);
   if (user.refresh_token !== refresh_token) {
     reply.code(400).send('invalid_grant');
   }
+  user.refresh_token = Crypto.randomBytes(64).toString('hex');
+  await user.save();
   reply.code(200).send({
     access_token: jwt.sign(
       { id: user._id, username: user.username },
       process.env.privateKey || 'privateKey',
       { expireplyIn: '900s' },
     ),
+    refresh_token: user.refresh_token,
     token_type: 'Bearer',
     expireply_in: 900,
   });
@@ -75,7 +78,7 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
         break;
 
       case 'refresh_token':
-        await grantWithRefreplyh(request, reply);
+        await grantWithRefresh(request, reply);
         break;
 
       case 'authorization_code':
