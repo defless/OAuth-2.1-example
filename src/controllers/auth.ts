@@ -4,106 +4,13 @@ import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
 import type { SignupBody, AuthenticateBody } from '../core/types';
+import { getGithubToken, getGithubUser } from '../core/helpers';
 
 import User from '../core/models/user.js';
 
-const getGithubToken = async (code: string) => {
-  const tokenRequest = await fetch('https://github.com/login/oauth/access_token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      client_id: process.env.GithubPublic,
-      client_secret: process.env.GithubSecret,
-      code,
-    }),
-  });
-
-  return await tokenRequest.json();
-};
-
-const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { email, password } = request.body as AuthenticateBody;
-  const user = await User.findOne({ email });
-  if (!user) {
-    reply.code(401).send({ message: 'unknow_user' });
-  }
-  const result = await bcrypt.compare(password, user.password);
-  if (!result) {
-    reply.code(400).send({ message:'invalid_grant' });
-  }
-  const newRefreshToken = Crypto.randomBytes(64).toString('hex');
-  user.refresh_token = newRefreshToken;
-  user.save();
-  reply.code(200).send({
-    access_token: jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.privateKey || 'privateKey',
-      { expireIn: '900s' },
-    ),
-    token_type: 'Bearer',
-    expire_in: 900,
-    refresh_token: user.refresh_token,
-  });
-};
-
-const grantWithRefresh = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { id, refresh_token } = request.body as AuthenticateBody;
-  const user = await User.findById(id);
-  if (user.refresh_token !== refresh_token) {
-    reply.code(400).send({ message:'invalid_grant' });
-  }
-  user.refresh_token = Crypto.randomBytes(64).toString('hex');
-  await user.save();
-  reply.code(200).send({
-    access_token: jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.privateKey || 'privateKey',
-      { expireIn: '900s' },
-    ),
-    refresh_token: user.refresh_token,
-    token_type: 'Bearer',
-    expire_in: 900,
-  });
-};
-
-export const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { code } = request.body as { code: string};
-
-  try {
-    const { access_token } = await getGithubToken(code);
-    if (!access_token) {
-      reply.code(401).send({ message: 'invalid_grant' });
-    }
-    const userRequest = await fetch('https://api.github.com/user', {
-      headers: {
-        Authorization: `token ${access_token}`,
-      },
-    });
-    const user = await User.findOne({ githubId: (await userRequest.json()).id });
-
-    if (!user) {
-      reply.code(401).send({ message: 'unknow_user' });
-    }
-
-    reply.code(200).send({
-      access_token: jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.privateKey || 'privateKey',
-        { expireIn: '900s' },
-      ),
-      token_type: 'Bearer',
-      expire_in: 900,
-      refresh_token: user.refresh_token,
-    });
-  } catch (error) {
-    console.log(error);
-    reply.code(500).send({ message: 'internal_error' });
-  }
-};
-
+/*
+  Authenticates a user according to the spcecified grant type
+*/
 export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
   const { grant_type } = request.body as AuthenticateBody;
   try {
@@ -125,7 +32,7 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
         break;
     }
   } catch (e) {
-    throw new Error(e);
+    reply.status(500).send({ message: 'internal_server_error' });
   }
 };
 
@@ -136,16 +43,17 @@ export const credentialRegister = async (
   const { email, password } = request.body as SignupBody;
   try {
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       reply.code(409).send({ message: 'duplicate_user' })
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
+
+    const newUser = await new User({
       email,
-      password: hashedPassword,
+      password: await bcrypt.hash(password, 10),
       refresh_token: Crypto.randomBytes(64).toString('hex'),
-    });
-    await newUser.save();
+    }).save();
+
     reply.code(201).send({
       access_token: jwt.sign(
         { id: newUser._id, email: newUser.email },
@@ -168,31 +76,23 @@ export const thirdPartyRegister = async (
   const { code } = request.body as SignupBody;
   try {
     const { access_token } = await getGithubToken(code);
+
     if (!access_token) {
       reply.code(401).send({ message:'invalid_grant' });
     }
-    const userRequest = await fetch('https://api.github.com/user', {
-      headers: {
-        Authorization: `token ${access_token}`,
-      },
-    });
-
-    const githubUser = await userRequest.json();
+    const githubData = await getGithubUser(access_token); 
   
-    const user = await User.findOne({ githubId: githubUser.id });
+    const existingUser = await User.findOne({ githubId: githubData.id });
 
-    if (user) {
+    if (existingUser) {
       reply.code(409).send({ message: 'duplicate_user' })
     }
 
-    const newUser = new User({
-      githubId: githubUser.id,
-      email: githubUser.email,
+    const newUser = await new User({
+      githubId: githubData.id,
+      email: githubData.email || '',
       refresh_token: Crypto.randomBytes(64).toString('hex'),
-    });
-
-    await newUser.save();
-
+    }).save();
 
     reply.code(201).send({
       access_token: jwt.sign(
@@ -208,3 +108,87 @@ export const thirdPartyRegister = async (
     reply.code(500).send({ message: 'internal_error' });
   }
 }
+
+const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { email, password } = request.body as AuthenticateBody;
+  const user = await User.findOne({ email });
+  if (!user) {
+    reply.code(401).send({ message: 'unknow_user' });
+  }
+  const matching = await bcrypt.compare(password, user.password);
+  if (!matching) {
+    reply.code(400).send({ message:'invalid_grant' });
+  }
+  const newRefreshToken = Crypto.randomBytes(64).toString('hex');
+  user.refresh_token = newRefreshToken;
+  await user.save();
+
+  reply.code(200).send({
+    access_token: jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.privateKey || 'privateKey',
+      { expireIn: '900s' },
+    ),
+    token_type: 'Bearer',
+    expire_in: 900,
+    refresh_token: user.refresh_token,
+  });
+};
+
+const grantWithRefresh = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { id, refresh_token } = request.body as AuthenticateBody;
+  const user = await User.findById(id);
+
+  if (!user) {
+    reply.code(401).send({ message: 'unknow_user' });
+  }
+
+  if (user.refresh_token !== refresh_token) {
+    reply.code(400).send({ message:'invalid_grant' });
+  }
+  user.refresh_token = Crypto.randomBytes(64).toString('hex');
+  await user.save();
+  reply.code(200).send({
+    access_token: jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.privateKey || 'privateKey',
+      { expireIn: '900s' },
+    ),
+    refresh_token: user.refresh_token,
+    token_type: 'Bearer',
+    expire_in: 900,
+  });
+};
+
+const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { code } = request.body as { code: string};
+
+  try {
+    const { access_token } = await getGithubToken(code);
+  
+    if (!access_token) {
+      reply.code(401).send({ message: 'invalid_grant' });
+    }
+
+    const githubData = await getGithubUser(access_token);
+    const user = await User.findOne({ githubId: githubData.id });
+
+    if (!user) {
+      reply.code(401).send({ message: 'unknow_user' });
+    }
+
+    reply.code(200).send({
+      access_token: jwt.sign(
+        { id: user._id, email: user.email },
+        process.env.privateKey || 'privateKey',
+        { expireIn: '900s' },
+      ),
+      token_type: 'Bearer',
+      expire_in: 900,
+      refresh_token: user.refresh_token,
+    });
+  } catch (error) {
+    console.log(error);
+    reply.code(500).send({ message: 'internal_error' });
+  }
+};

@@ -14,6 +14,6 @@ export default async (request: FastifyRequest, reply: FastifyReply) => {
       reply.status(401).send({ message: 'unauthorized_client'});
     }
   } catch (e) {
-    throw new Error(e);
+    reply.status(500).send({ message: 'internal_server_error'});
   }
 };

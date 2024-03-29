@@ -15,3 +15,14 @@ export declare interface AuthenticateBody {
   authorization_code?: string;
   grant_type: 'password' | 'refresh_token' | 'authorization_code';
 }
+
+export declare interface GithubTokenItem {
+  access_token: string;
+  token_type: string;
+  scope: string;
+}
+
+export declare interface GithubUserItem {
+  id: number;
+  email: string;
+}

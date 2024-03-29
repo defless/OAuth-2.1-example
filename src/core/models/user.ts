@@ -14,6 +14,4 @@ const UserSchema = new mongoose.Schema<User>({
   authorization_code: String,
 });
 
-const User = mongoose.model<User>('User', UserSchema);
-
-export default User;
+export default mongoose.model<User>('User', UserSchema);
