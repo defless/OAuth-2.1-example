@@ -1,4 +1,5 @@
 import Fastify from 'fastify'
+import cors from '@fastify/cors'
 import mongoose from 'mongoose'
 import 'dotenv/config'
 
@@ -15,6 +16,7 @@ const fastify = Fastify({
   logger: true
 })
 
+fastify.register(cors);
 fastify.setErrorHandler((_error, _request, reply) => {
   reply.status(500).send({ message: 'internal_server_error' })
 })

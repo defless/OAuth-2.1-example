@@ -2,12 +2,13 @@ import type { ObjectId } from "mongoose";
 
 
 export declare interface SignupBody {
-  username: string;
-  password: string;
+  email?: string;
+  password?: string;
+  code?: string;
 }
 
 export declare interface AuthenticateBody {
-  username?: string;
+  email?: string;
   password?: string;
   id?: ObjectId;
   refresh_token?: string;

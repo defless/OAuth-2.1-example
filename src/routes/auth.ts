@@ -1,6 +1,10 @@
 import type { FastifyInstance, RouteShorthandOptions } from 'fastify';
 
-import { authenticate, signup } from '../controllers/auth';
+import {
+  authenticate,
+  credentialRegister,
+  thirdPartyRegister,
+} from '../controllers/auth';
 
 
 const auth = async (fastify: FastifyInstance) => {
@@ -35,6 +39,7 @@ const auth = async (fastify: FastifyInstance) => {
     '/auth/authenticate',
     authenticateOptions,
     async (request, reply) => authenticate(request, reply));
+
   const signUpOptions: RouteShorthandOptions = {
     schema: {
       body: {
@@ -46,20 +51,37 @@ const auth = async (fastify: FastifyInstance) => {
         }
       },
       response: {
-        200: {
+        201: {
           type: 'object',
           properties: {
-            message: { type: 'string' }
+            access_token: { type: 'string' },
+            token_type: { type: 'string', enum: ['Bearer'] },
+            expires_in: { type: 'number' },
+            refresh_token: { type: 'string' }
           }
         }
       }
     }
   }
   fastify.post(
-    '/auth/signup',
+    '/auth/register/credentials',
     signUpOptions,
-    async (request, reply) => signup(request, reply)
+    async (request, reply) => credentialRegister(request, reply)
   );
+
+  fastify.post(
+    '/auth/register/third-party',
+    signUpOptions,
+    async (request, reply) => thirdPartyRegister(request, reply)
+  );
+
+  fastify.get('/auth/callback', async (request, reply) => {
+    const { code } = request.query as { code: string };
+    if (!code) {
+      return reply.code(400).send('invalid_code');
+    }
+    reply.code(200).send({ code });
+  });
 };
 
 export default auth;
