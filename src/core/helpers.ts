@@ -1,6 +1,10 @@
-import type { GithubTokenItem, GithubUserItem } from './types';
+import type {
+  GithubTokenItem,
+  GithubUserItem,
+  ThirdPartyProvider,
+} from './types';
 
-export const getGithubToken = async (code: string): Promise<GithubTokenItem> => {
+const getGithubToken = async (code: string): Promise<GithubTokenItem> => {
   const tokenRequest = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: {
@@ -17,7 +21,7 @@ export const getGithubToken = async (code: string): Promise<GithubTokenItem> => 
   return await tokenRequest.json();
 };
 
-export const getGithubUser = async (token: string): Promise<GithubUserItem> => {
+const getGithubUser = async (token: string): Promise<GithubUserItem> => {
   const userRequest = await fetch('https://api.github.com/user', {
     headers: {
       Authorization: `token ${token}`,
@@ -26,3 +30,61 @@ export const getGithubUser = async (token: string): Promise<GithubUserItem> => {
 
   return await userRequest.json();
 }
+
+const getGoogleToken = async (code: string): Promise<GithubTokenItem> => {
+  const url = new URL('https://oauth2.googleapis.com/token');
+  url.searchParams.append('client_id', process.env.GooglePublic);
+  url.searchParams.append('client_secret', process.env.GoogleSecret);
+  url.searchParams.append('code', code);
+  url.searchParams.append('redirect_uri', 'http://localhost:3000/auth/callback');
+  url.searchParams.append('grant_type', 'authorization_code');
+  const tokenRequest = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },  
+  });
+
+  return  await tokenRequest.json();
+};
+
+const getGoogleUser = async (token: string): Promise<any> => {
+  const userRequest = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return await userRequest.json();
+};
+
+export const getThirdPartyToken = (
+  provider: ThirdPartyProvider,
+  code: string
+) => {
+  switch (provider) {
+    case 'github':
+      return getGithubToken(code);
+    case 'google':
+      return getGoogleToken(code);
+    default:
+      //return error
+      break;
+  }
+};
+
+export const getThirdPartyUser = async (
+  provider: ThirdPartyProvider,
+  token: string
+) => {
+  switch (provider) {
+    case 'github':
+      return await getGithubUser(token);
+    case 'google':
+      return await getGoogleUser(token);
+    default:
+      //return error
+      break;
+  }
+};

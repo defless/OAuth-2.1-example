@@ -1,10 +1,13 @@
 import type { ObjectId } from "mongoose";
 
 
+export declare type ThirdPartyProvider = 'github' | 'google';
+
 export declare interface SignupBody {
   email?: string;
   password?: string;
   code?: string;
+  provider?: ThirdPartyProvider;
 }
 
 export declare interface AuthenticateBody {

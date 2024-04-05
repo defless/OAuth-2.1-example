@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-import type { SignupBody, AuthenticateBody } from '../core/types';
-import { getGithubToken, getGithubUser } from '../core/helpers';
+import type { SignupBody, AuthenticateBody, ThirdPartyProvider } from '../core/types';
+import { getThirdPartyToken, getThirdPartyUser } from '../core/helpers';
 
 import User from '../core/models/user.js';
 
@@ -73,24 +73,24 @@ export const thirdPartyRegister = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { code } = request.body as SignupBody;
+  const { code, provider } = request.body as SignupBody;
   try {
-    const { access_token } = await getGithubToken(code);
+    const { access_token } = await getThirdPartyToken(provider, code);
 
     if (!access_token) {
       reply.code(401).send({ message:'invalid_grant' });
     }
-    const githubData = await getGithubUser(access_token); 
+    const thirdPartyUser = await getThirdPartyUser(provider, access_token); 
   
-    const existingUser = await User.findOne({ githubId: githubData.id });
+    const existingUser = await User.findOne({ providerId: thirdPartyUser.id });
 
     if (existingUser) {
       reply.code(409).send({ message: 'duplicate_user' })
     }
 
     const newUser = await new User({
-      githubId: githubData.id,
-      email: githubData.email || '',
+      providerId: thirdPartyUser.id,
+      email: thirdPartyUser.email || '',
       refresh_token: Crypto.randomBytes(64).toString('hex'),
     }).save();
 
@@ -104,7 +104,6 @@ export const thirdPartyRegister = async (
       expires_in: 900,
     });
   } catch (error) {
-    console.log(error);
     reply.code(500).send({ message: 'internal_error' });
   }
 }
@@ -161,17 +160,23 @@ const grantWithRefresh = async (request: FastifyRequest, reply: FastifyReply) =>
 };
 
 const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { code } = request.body as { code: string};
+  //retype
+  const { code, provider } = request.body as { code: string, provider: ThirdPartyProvider};
 
   try {
-    const { access_token } = await getGithubToken(code);
+    const { access_token } = await getThirdPartyToken(provider, code);
   
     if (!access_token) {
       reply.code(401).send({ message: 'invalid_grant' });
     }
 
-    const githubData = await getGithubUser(access_token);
-    const user = await User.findOne({ githubId: githubData.id });
+    const userData = await getThirdPartyUser(provider, access_token);
+    
+    if (!userData.id) {
+      reply.code(401).send({ message: 'invalid_grant' });
+    }
+  
+    const user = await User.findOne({ providerId: userData.id });
 
     if (!user) {
       reply.code(401).send({ message: 'unknow_user' });
@@ -181,14 +186,13 @@ const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) =
       access_token: jwt.sign(
         { id: user._id, email: user.email },
         process.env.privateKey || 'privateKey',
-        { expireIn: '900s' },
+        { expiresIn: '900s' },
       ),
       token_type: 'Bearer',
-      expire_in: 900,
+      expires_in: 900,
       refresh_token: user.refresh_token,
     });
   } catch (error) {
-    console.log(error);
     reply.code(500).send({ message: 'internal_error' });
   }
 };
