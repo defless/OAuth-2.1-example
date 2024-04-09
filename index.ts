@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import mongoose from 'mongoose'
 import 'dotenv/config'
+import { createHash, randomBytes } from 'crypto';
 
 import { content, auth } from './src/routes'
 
@@ -23,6 +24,18 @@ fastify.setErrorHandler((_error, _request, reply) => {
 
 fastify.register(auth);
 fastify.register(content);
+
+fastify.get('/', async (_request, reply) => {
+
+  const code_verifier = randomBytes(64).toString('hex');
+  const sha256String = createHash('sha256')
+  .update(code_verifier)
+  .digest('base64');
+
+  const code_challenge = sha256String.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  reply.send({ code_challenge, code_verifier });
+})
 
 try {
   await fastify.listen({ port: 3000 })

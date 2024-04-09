@@ -3,10 +3,13 @@ import type { ObjectId } from "mongoose";
 
 export declare type ThirdPartyProvider = 'github' | 'google';
 
+export declare type GrantType = 'password' | 'refresh_token' | 'authorization_code' | 'client_credentials';
+
 export declare interface SignupBody {
   email?: string;
   password?: string;
   code?: string;
+  code_verifier?: string;
   provider?: ThirdPartyProvider;
 }
 
@@ -16,7 +19,7 @@ export declare interface AuthenticateBody {
   id?: ObjectId;
   refresh_token?: string;
   authorization_code?: string;
-  grant_type: 'password' | 'refresh_token' | 'authorization_code';
+  grant_type: GrantType;
 }
 
 export declare interface GithubTokenItem {

@@ -20,11 +20,15 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
         break;
 
       case 'refresh_token':
-        await grantWithRefresh(request, reply);
+        await grantWithRefreshToken(request, reply);
         break;
 
       case 'authorization_code':
         await grantWithAuthCode(request, reply);
+        break;
+
+      case 'client_credentials':
+        await grantWithClientCredentials(request, reply);
         break;
 
       default:
@@ -73,9 +77,9 @@ export const thirdPartyRegister = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { code, provider } = request.body as SignupBody;
+  const { code, provider, code_verifier } = request.body as SignupBody;
   try {
-    const { access_token } = await getThirdPartyToken(provider, code);
+    const { access_token } = await getThirdPartyToken(provider, code, code_verifier);
 
     if (!access_token) {
       reply.code(401).send({ message:'invalid_grant' });
@@ -134,7 +138,7 @@ const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) =
   });
 };
 
-const grantWithRefresh = async (request: FastifyRequest, reply: FastifyReply) => {
+const grantWithRefreshToken = async (request: FastifyRequest, reply: FastifyReply) => {
   const { id, refresh_token } = request.body as AuthenticateBody;
   const user = await User.findById(id);
 
@@ -161,10 +165,10 @@ const grantWithRefresh = async (request: FastifyRequest, reply: FastifyReply) =>
 
 const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) => {
   //retype
-  const { code, provider } = request.body as { code: string, provider: ThirdPartyProvider};
+  const { code, provider, code_verifier } = request.body as { code: string, provider: ThirdPartyProvider, code_verifier: string };
 
   try {
-    const { access_token } = await getThirdPartyToken(provider, code);
+    const { access_token } = await getThirdPartyToken(provider, code, code_verifier);
   
     if (!access_token) {
       reply.code(401).send({ message: 'invalid_grant' });
@@ -195,4 +199,8 @@ const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) =
   } catch (error) {
     reply.code(500).send({ message: 'internal_error' });
   }
+};
+
+const grantWithClientCredentials = async (request: FastifyRequest, reply: FastifyReply) => {
+  
 };

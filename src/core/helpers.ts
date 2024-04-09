@@ -31,8 +31,9 @@ const getGithubUser = async (token: string): Promise<GithubUserItem> => {
   return await userRequest.json();
 }
 
-const getGoogleToken = async (code: string): Promise<GithubTokenItem> => {
+const getGoogleToken = async (code: string, codeVerifier: string): Promise<GithubTokenItem> => {
   const url = new URL('https://oauth2.googleapis.com/token');
+  codeVerifier && url.searchParams.append('code_verifier', codeVerifier);
   url.searchParams.append('client_id', process.env.GooglePublic);
   url.searchParams.append('client_secret', process.env.GoogleSecret);
   url.searchParams.append('code', code);
@@ -61,13 +62,14 @@ const getGoogleUser = async (token: string): Promise<any> => {
 
 export const getThirdPartyToken = (
   provider: ThirdPartyProvider,
-  code: string
+  code: string,
+  codeVerifier?: string,
 ) => {
   switch (provider) {
     case 'github':
       return getGithubToken(code);
     case 'google':
-      return getGoogleToken(code);
+      return getGoogleToken(code, codeVerifier);
     default:
       //return error
       break;
