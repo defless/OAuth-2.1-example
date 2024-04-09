@@ -3,9 +3,15 @@ import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-import type { SignupBody, AuthenticateBody, ThirdPartyProvider } from '../core/types';
+import type {
+  SignupBody,
+  AuthenticateBody,
+  ThirdPartyProvider,
+  ClientCredentialsBody,
+} from '../core/types';
 import { getThirdPartyToken, getThirdPartyUser } from '../core/helpers';
 
+import Client from '../core/models/client.js';
 import User from '../core/models/user.js';
 
 /*
@@ -202,5 +208,24 @@ const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) =
 };
 
 const grantWithClientCredentials = async (request: FastifyRequest, reply: FastifyReply) => {
-  
+  const { client_secret, client_id } = request.body as ClientCredentialsBody;
+  const client = await Client.findOne({ client_id });
+
+  if (!client) {
+    reply.code(401).send({ message: 'unknow_client' });
+  }
+
+  if (client.clientSecret !== client_secret) {
+    reply.code(401).send({ message: 'invalid_grant' });
+  }
+
+  reply.code(200).send({
+    access_token: jwt.sign(
+      { id: client._id, name: client.name },
+      process.env.privateKey || 'privateKey',
+      { expiresIn: '900s' },
+    ),
+    token_type: 'Bearer',
+    expires_in: 900,
+  });
 };

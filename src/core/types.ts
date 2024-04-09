@@ -32,3 +32,9 @@ export declare interface GithubUserItem {
   id: number;
   email: string;
 }
+
+export declare interface ClientCredentialsBody {
+  client_id: string;
+  client_secret: string;
+  grant_type: GrantType;
+}
