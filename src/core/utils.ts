@@ -18,7 +18,7 @@ const getGithubToken = async (code: string): Promise<GithubTokenItem> => {
     }),
   });
 
-  return await tokenRequest.json();
+  return await tokenRequest.json() as GithubTokenItem;
 };
 
 const getGithubUser = async (token: string): Promise<GithubUserItem> => {
@@ -28,10 +28,10 @@ const getGithubUser = async (token: string): Promise<GithubUserItem> => {
     },
   });
 
-  return await userRequest.json();
+  return await userRequest.json() as GithubUserItem;
 }
 
-const getGoogleToken = async (code: string, codeVerifier: string): Promise<GithubTokenItem> => {
+const getGoogleToken = async (code: string, codeVerifier: string): Promise<any> => {
   const url = new URL('https://oauth2.googleapis.com/token');
   codeVerifier && url.searchParams.append('code_verifier', codeVerifier);
   url.searchParams.append('client_id', process.env.GooglePublic);
@@ -47,7 +47,7 @@ const getGoogleToken = async (code: string, codeVerifier: string): Promise<Githu
     },  
   });
 
-  return  await tokenRequest.json();
+  return await tokenRequest.json();
 };
 
 const getGoogleUser = async (token: string): Promise<any> => {

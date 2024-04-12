@@ -1,4 +1,4 @@
-import type { FastifyInstance, RouteShorthandOptions } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 
 import {
   authenticate,

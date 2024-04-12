@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 declare interface User {
   email: string;
@@ -8,7 +8,7 @@ declare interface User {
   providerId: string;
 }
 
-const UserSchema = new mongoose.Schema<User>({
+const UserSchema = new Schema<User>({
   email: String,
   password: String,
   refresh_token: String,
@@ -16,4 +16,4 @@ const UserSchema = new mongoose.Schema<User>({
   providerId: String,
 });
 
-export default mongoose.model<User>('User', UserSchema);
+export default model('User', UserSchema);

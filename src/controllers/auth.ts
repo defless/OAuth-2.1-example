@@ -9,10 +9,10 @@ import type {
   ThirdPartyProvider,
   ClientCredentialsBody,
 } from '../core/types';
-import { getThirdPartyToken, getThirdPartyUser } from '../core/helpers';
+import { getThirdPartyToken, getThirdPartyUser } from '../core/utils';
 
-import Client from '../core/models/client.js';
-import User from '../core/models/user.js';
+import Client from '../core/models/client';
+import User from '../core/models/user';
 
 /*
   Authenticates a user according to the spcecified grant type

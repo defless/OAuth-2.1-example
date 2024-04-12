@@ -1,4 +1,5 @@
-import content from "./content.js";
-import auth from "./auth.js";
+import content from './content';
+import auth from './auth';
+import helpers from './helpers';
 
-export { content, auth };
+export { content, auth, helpers };
