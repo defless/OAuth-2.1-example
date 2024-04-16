@@ -1,42 +1,31 @@
-# Basic-Auth 🔐
+# OAuth 2.1 implementation sandbox  🔐
 
-Basic-Auth is an object lesson of an [OAuth 2.0](https://oauth.net/) protocol integration on a very basic Node.JS API. I made it for learning purposes, so feel free
-to tell me anything that can improve this setup ! 🙃
+This repository is an object lesson of an [OAuth 2.1](https://oauth.net/2/) protocol integration on a basic **Fastify API**. I made it for learning purposes, so feel free
+to contribute ! 🙃
 
 # Install it
 
 To start, just clone this repository and then use:
 
 ```bash
-yarn install # or using npm: npm install
+yarn install # or using pnpm: pnpm install
 ```
 
-Before starting the node server, be sure to have a `.env` file containing at least the following code:
-
-```bash
-secretKey=<A RANDOM SECRET KEY OF YOUR CHOICE>
-```
+Before starting the node server, be sure to have a `.env` file matching `.env.example`. (I will come back after on the specific values to setup in it)
 
 Then just run the following start command:
 
 ```bash
-yarn start # or using npm: npm start
+yarn dev # or using pnpm: pnpm dev
 ```
 
-The auth server is by default listening on port 4000 </br>
-The Resource server is by default listening on port 3000
+The auth server is by default listening on port 3000 </br>
 
 # Try it
 
 </br>
 
-| Method | Url | Content | Action |
-| --- | --- | --- | --- |
-| POST | /api/auth/signup | name, password | Register a new user |
-| POST | /api/auth/authenticate | grant_type='password, name, password | authenticate with credentials and return access & refresh tokens|
-| POST | /api/auth/authenticate | grant_type='refresh_token, id | authenticate with refresh token and return access token & new refresh token|
-| GET | /api/resources | access token as Bearer token | Return a protected ressource|
-
+Try it yourself with this postman libray: [Insert button here]
 
 # About OAuth 2.0
 
@@ -67,3 +56,5 @@ Here's the basic protocol flow:
   +--------+           & Optional Refresh Token        +---------------+
 
 ```
+
+# And what about 2.1 ??? 🧐
