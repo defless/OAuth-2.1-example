@@ -1,10 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 
-import {
-  authenticate,
-  credentialRegister,
-  thirdPartyRegister,
-} from '../controllers/auth';
+import { authenticate, credentialRegister } from '../controllers/auth';
 
 
 const auth = async (fastify: FastifyInstance) => {
@@ -45,7 +41,7 @@ const auth = async (fastify: FastifyInstance) => {
   /*
     Register a new user with credentials
   */
-  fastify.post('/auth/register/credentials',
+  fastify.post('/auth/register',
     {
       schema: {
         body: {
@@ -72,47 +68,6 @@ const auth = async (fastify: FastifyInstance) => {
     async (request, reply) => credentialRegister(request, reply)
   );
 
-  /*
-    Register a new user with third-party service
-  */
-  fastify.post('/auth/register/third-party',
-    {
-      schema: {
-        body: {
-          type: 'object',
-          required: ['username', 'password'],
-          properties: {
-            username: { type: 'string' },
-            password: { type: 'string' }
-          }
-        },
-        response: {
-          201: {
-            type: 'object',
-            properties: {
-              access_token: { type: 'string' },
-              token_type: { type: 'string', enum: ['Bearer'] },
-              expires_in: { type: 'number' },
-              refresh_token: { type: 'string' }
-            }
-          }
-        }
-      }
-    },
-    async (request, reply) => thirdPartyRegister(request, reply)
-  );
-
-  /*
-    Returns the authorization code sent by the third-party service
-  */
-  fastify.get('/auth/callback',
-  async (request, reply) => {
-    const { code } = request.query as { code: string };
-    if (!code) {
-      return reply.code(400).send('invalid_code');
-    }
-    reply.code(200).send({ code });
-  });
 };
 
 export default auth;

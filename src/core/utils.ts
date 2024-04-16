@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+
 import type {
   GithubTokenItem,
   GithubUserItem,
@@ -90,3 +93,9 @@ export const getThirdPartyUser = async (
       break;
   }
 };
+
+export const generateAccessToken = (
+  id: mongoose.Types.ObjectId,
+  email: string,
+) => 
+  jwt.sign({ id, email }, process.env.privateKey, { expiresIn: '900s' });

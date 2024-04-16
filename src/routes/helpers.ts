@@ -1,18 +1,20 @@
 import type { FastifyInstance } from 'fastify';
-import { createHash, randomBytes } from 'crypto';
+import { generatePKCE } from '../controllers/helpers';
 
 const helpers = async (fastify: FastifyInstance) => {
-  fastify.get('/helpers/pkce', (_request, reply) => {
-  
-    const code_verifier = randomBytes(64).toString('hex');
-    const sha256String = createHash('sha256')
-    .update(code_verifier)
-    .digest('base64');
-  
-    const code_challenge = sha256String.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-  
-    reply.send({ code_challenge, code_verifier });
-  })
+  fastify.get('/helpers/pkce',
+    (request, reply) => generatePKCE(request, reply)
+  );
+
+  fastify.get('/helpers/callback',
+    async (request, reply) => {
+      const { code } = request.query as { code: string };
+      if (!code) {
+        return reply.code(400).send('invalid_code');
+      }
+      reply.code(200).send({ code });
+    }
+  );
 };
 
 export default helpers;

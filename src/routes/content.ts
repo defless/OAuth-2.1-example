@@ -1,18 +1,19 @@
 import type { FastifyInstance } from 'fastify';
 import authMiddleware from '../core/middlewares/authMiddleware'
+import {
+  getRestrictedContent,
+  getUnrestrictedContent,
+} from '../controllers/content';
 
 const content = async (fastify: FastifyInstance, opts: object) => {
 
-  fastify.get('/unrestricted', (_request, reply) => {
-    reply.code(200).send('This is an unrestricted content 🎉')
-  });
+  fastify.get('/content/unrestricted',
+    (request, reply) => getUnrestrictedContent(request, reply)
+  );
 
-  fastify.get(
-    '/restricted',
+  fastify.get('/content/restricted',
     { preHandler: [authMiddleware] },
-    (_request, reply) => {
-      reply.code(200).send('This is a restricted content 🔒')
-    }
+    (request, reply) => getRestrictedContent(request, reply)
   );
 };
 

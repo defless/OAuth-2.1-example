@@ -1,5 +1,4 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
@@ -9,7 +8,7 @@ import type {
   ThirdPartyProvider,
   ClientCredentialsBody,
 } from '../core/types';
-import { getThirdPartyToken, getThirdPartyUser } from '../core/utils';
+import { generateAccessToken, getThirdPartyToken, getThirdPartyUser } from '../core/utils';
 
 import Client from '../core/models/client';
 import User from '../core/models/user';
@@ -65,11 +64,7 @@ export const credentialRegister = async (
     }).save();
 
     reply.code(201).send({
-      access_token: jwt.sign(
-        { id: newUser._id, email: newUser.email },
-        process.env.privateKey || 'privateKey',
-        { expiresIn: '900s' },
-      ),
+      access_token: generateAccessToken(newUser._id, newUser.email),
       token_type: 'Bearer',
       expires_in: 900,
       refresh_token: newUser.refresh_token,
@@ -78,45 +73,6 @@ export const credentialRegister = async (
     reply.code(500).send({ message: 'internal_error' })
   }
 };
-
-export const thirdPartyRegister = async (
-  request: FastifyRequest,
-  reply: FastifyReply
-) => {
-  const { code, provider, code_verifier } = request.body as SignupBody;
-  try {
-    const { access_token } = await getThirdPartyToken(provider, code, code_verifier);
-
-    if (!access_token) {
-      reply.code(401).send({ message:'invalid_grant' });
-    }
-    const thirdPartyUser = await getThirdPartyUser(provider, access_token); 
-  
-    const existingUser = await User.findOne({ providerId: thirdPartyUser.id });
-
-    if (existingUser) {
-      reply.code(409).send({ message: 'duplicate_user' })
-    }
-
-    const newUser = await new User({
-      providerId: thirdPartyUser.id,
-      email: thirdPartyUser.email || '',
-      refresh_token: Crypto.randomBytes(64).toString('hex'),
-    }).save();
-
-    reply.code(201).send({
-      access_token: jwt.sign(
-        { id: newUser._id, email: newUser.email },
-        process.env.privateKey || 'privateKey',
-        { expiresIn: '900s' },
-      ),
-      token_type: 'Bearer',
-      expires_in: 900,
-    });
-  } catch (error) {
-    reply.code(500).send({ message: 'internal_error' });
-  }
-}
 
 const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) => {
   const { email, password } = request.body as AuthenticateBody;
@@ -133,11 +89,7 @@ const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) =
   await user.save();
 
   reply.code(200).send({
-    access_token: jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.privateKey || 'privateKey',
-      { expireIn: '900s' },
-    ),
+    access_token: generateAccessToken(user._id, user.email),
     token_type: 'Bearer',
     expire_in: 900,
     refresh_token: user.refresh_token,
@@ -158,11 +110,7 @@ const grantWithRefreshToken = async (request: FastifyRequest, reply: FastifyRepl
   user.refresh_token = Crypto.randomBytes(64).toString('hex');
   await user.save();
   reply.code(200).send({
-    access_token: jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.privateKey || 'privateKey',
-      { expireIn: '900s' },
-    ),
+    access_token: generateAccessToken(user._id, user.email),
     refresh_token: user.refresh_token,
     token_type: 'Bearer',
     expire_in: 900,
@@ -186,18 +134,18 @@ const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) =
       reply.code(401).send({ message: 'invalid_grant' });
     }
   
-    const user = await User.findOne({ providerId: userData.id });
+    let user = await User.findOne({ providerId: userData.id });
 
     if (!user) {
-      reply.code(401).send({ message: 'unknow_user' });
+      user = await new User({
+        providerId: userData.id,
+        email: userData.email || '',
+        refresh_token: Crypto.randomBytes(64).toString('hex'),
+      }).save();
     }
 
     reply.code(200).send({
-      access_token: jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.privateKey || 'privateKey',
-        { expiresIn: '900s' },
-      ),
+      access_token: generateAccessToken(user._id, user.email),
       token_type: 'Bearer',
       expires_in: 900,
       refresh_token: user.refresh_token,
@@ -220,11 +168,7 @@ const grantWithClientCredentials = async (request: FastifyRequest, reply: Fastif
   }
 
   reply.code(200).send({
-    access_token: jwt.sign(
-      { id: client._id, name: client.name },
-      process.env.privateKey || 'privateKey',
-      { expiresIn: '900s' },
-    ),
+    access_token: generateAccessToken(client._id, client.email),
     token_type: 'Bearer',
     expires_in: 900,
   });

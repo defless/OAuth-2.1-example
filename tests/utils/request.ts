@@ -1,12 +1,11 @@
 declare interface RequestOptions {
-  url: string;
   body?: Record<string, any>;
   headers?: Record<string, any>;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
 }
 
-const request = async (opts: RequestOptions) => {
-  const request = await fetch('http://localhost:3000' + opts.url, {
+const request = async (url: string, opts: RequestOptions) => {
+  const request = await fetch(`http://localhost:3000${url}`, {
     ...opts,
     body: JSON.stringify(opts.body),
     headers: {
@@ -17,22 +16,22 @@ const request = async (opts: RequestOptions) => {
   return await request.json();
 };
 
-export const get = (opts: RequestOptions) => request({
+export const get = (url: string, opts?: RequestOptions) => request(url, {
   ...opts,
   method: 'GET',
 });
 
-export const post = (opts: RequestOptions) => request({
+export const post = (url: string, opts?: RequestOptions) => request(url, {
   ...opts,
   method: 'POST',
 });
 
-export const put = (opts: RequestOptions) => request({
+export const put = (url: string, opts?: RequestOptions) => request(url, {
   ...opts,
   method: 'PUT',
 });
 
-export const remove = (opts: RequestOptions) => request({
+export const remove = (url: string, opts?: RequestOptions) => request(url, {
   ...opts,
   method: 'DELETE',
 });
