@@ -12,4 +12,4 @@ const ClientSchema = new mongoose.Schema<Client>({
   clientSecret: String,
 });
 
-export default mongoose.models.User || mongoose.model('User', ClientSchema);
+export default mongoose.models.Client || mongoose.model('Client', ClientSchema);

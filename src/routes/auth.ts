@@ -12,14 +12,14 @@ const auth = async (fastify: FastifyInstance) => {
       schema: {
         body: {
           type: 'object',
-          required: ['username', 'password', 'grant_type'],
+          required: ['grant_type'],
           properties: {
-            username: { type: 'string' },
+            email: { type: 'string' },
             password: { type: 'string' },
-            grant_type: { 
-              type: 'string',
-              enum: ['password', 'refresh_token', 'authorization_code']
-            }
+            refresh_token: { type: 'string' },
+            client_id: { type: 'string' },
+            client_secret: { type: 'string' },
+            grant_type: {  type: 'string' }
           }
         },
         response: {

@@ -91,7 +91,7 @@ const grantWithPassword = async (request: FastifyRequest, reply: FastifyReply) =
   reply.code(200).send({
     access_token: generateAccessToken(user._id, user.email),
     token_type: 'Bearer',
-    expire_in: 900,
+    expires_in: 900,
     refresh_token: user.refresh_token,
   });
 };
@@ -113,7 +113,7 @@ const grantWithRefreshToken = async (request: FastifyRequest, reply: FastifyRepl
     access_token: generateAccessToken(user._id, user.email),
     refresh_token: user.refresh_token,
     token_type: 'Bearer',
-    expire_in: 900,
+    expires_in: 900,
   });
 };
 
@@ -157,7 +157,8 @@ const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) =
 
 const grantWithClientCredentials = async (request: FastifyRequest, reply: FastifyReply) => {
   const { client_secret, client_id } = request.body as ClientCredentialsBody;
-  const client = await Client.findOne({ client_id });
+  console.log((await Client.find())[0]);
+  const client = await Client.findOne({ clientId: client_id });
 
   if (!client) {
     reply.code(401).send({ message: 'unknow_client' });
@@ -168,7 +169,7 @@ const grantWithClientCredentials = async (request: FastifyRequest, reply: Fastif
   }
 
   reply.code(200).send({
-    access_token: generateAccessToken(client._id, client.email),
+    access_token: generateAccessToken(client._id, client.name),
     token_type: 'Bearer',
     expires_in: 900,
   });
