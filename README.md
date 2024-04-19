@@ -84,27 +84,27 @@ This API provides endpoints to test OAuth flow all by yourself without any front
 
 ### Register a new user
 
-#### 1/ Using user credentials:
+1. #### Using user credentials:
 
   You can register a new user in two ways, first you can use the ```POST /auth/register``` route to register a user by sending an email 
 
-#### 2/ Using a third party provider 
+2. #### Using a third party provider 
 
   For a third party provider, the register process is the same that an authentication.
 
 ### Authenticate
 
-#### With ```grant_type="password"``` 
+1. #### With ```grant_type="password"``` 
 
 > ⚠️ As the 2.1 standard specifies, using the password must be avoided as much as possible
 
 Request ```POST /auth/authenticate``` with the right email and the right password and you will be granted an access/refresh tokens duet.
 
-#### With ```grant_type="refresh_token"```
+2. #### With ```grant_type="refresh_token"```
 
 Request ```POST /auth/authenticate``` with the ```refresh_token``` you stored from your last authentication request and you will be granted a new access/refresh tokens duet.
 
-#### With ```grant_type="authorization_code"```
+3. #### With ```grant_type="authorization_code"```
 
 The authorization code allows you to register using a code provided by a third party solution (like Google or Github). In this example we use the provided code to access you public data on these providers api and then create an access/refresh tokens duet.
 
@@ -123,10 +123,6 @@ The authorization code allows you to register using a code provided by a third p
 
 > ⚠️ It's mandatory to use the ```code_verifier``` used to encrypt the code_challenge otherwise it cannot work.
 
-### Access ressources
-
-To access restricted data, just set the authorization header as a "Bearer" token corresponding to your ```refresh_token```
-
 ##### <ins>Using Github:</ins>
 
 > ℹ️ As Github **does not support PKCE** you can ignore ```code_verifier``` and ```code_challenge```
@@ -137,6 +133,10 @@ To access restricted data, just set the authorization header as a "Bearer" token
 (this url is set as callback url in github configuration)
 
 - **Step 3:** Request ```POST /auth/authenticate``` with the right ```grant_type``` and the ```code``` you just received, and you should get a access/refresh tokens duet as response. 
+
+### Access ressources
+
+To access restricted data, just set the authorization header as a "Bearer" token corresponding to your ```refresh_token```
 
 ## Try it
 
