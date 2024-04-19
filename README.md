@@ -90,27 +90,42 @@ This API provides endpoints to test OAuth flow all by yourself without any front
 
 #### 2/ Using a third party provider 
 
-  For a third party provider, the register process is the same that an [authentication](#). 
+  For a third party provider, the register process is the same that an authentication.
 
 ### Authenticate
 
-#### With ```grant_type="password"```
+#### With ```grant_type="password"``` 
+
+> ⚠️ As the 2.1 standard specifies, using the password must be avoided as much as possible
+
+Request ```POST /auth/authenticate``` with the right email and the right password and you will be granted an access/refresh tokens duet.
 
 #### With ```grant_type="refresh_token"```
 
+Request ```POST /auth/authenticate``` with the ```refresh_token``` you stored from your last authentication request and you will be granted a new access/refresh tokens duet.
+
 #### With ```grant_type="authorization_code"```
 
-
+The authorization code allows you to register using a code provided by a third party solution (like Google or Github). In this example we use the provided code to access you public data on these providers api and then create an access/refresh tokens duet.
 
 ##### <ins>Using Google:</ins>
 > ℹ️ You can find the documentation for Google Api using OAuth [here](https://developers.google.com/identity/protocols/oauth2/native-app)
 
-- **Step 1:** Request ```GET /helpers/pkce``` to get your ```code_challenge``` and your ```code_verifier``` required for the PKCE flow. 
+- **Step 1:** Request ```GET /helpers/pkce``` to get your ```code_challenge``` and your ```code_verifier``` required for the [PKCE](https://www.oauth.com/oauth2-servers/pkce/) flow. 
 
 - **Step 2:** Navigate to this url https://accounts.google.com/o/oauth2/v2/auth/oauth?scope=email&response_type=code&redirect_uri=http://localhost:3000/helpers/callback&client_id=616004699496-e8udbu373o3muhns6ca826d8hsvtski8.apps.googleusercontent.com&code_challenge_method=256&code_challenge=[YOUR_CODE_CHALLENGE] 
 > ⚠️ Don't forget to set your own code_challenge generated earlier in the url
 
-- **Step 3:** After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with a code that you will be able to use later during the authenticate step alongside the ```code_verifier```.
+- **Step 3:** After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with your authorization code.
+
+- **Step 4:** Request ```POST /auth/authenticate``` with the right ```grant_type```, the ```code``` you just received, and also the ```code_verifier``` and you should get a access/refresh
+  tokens duet as response. 
+
+> ⚠️ It's mandatory to use the ```code_verifier``` used to encrypt the code_challenge otherwise it cannot work.
+
+### Access ressources
+
+To access restricted data, just set the authorization header as a "Bearer" token corresponding to your ```refresh_token```
 
 ##### <ins>Using Github:</ins>
 
@@ -118,8 +133,10 @@ This API provides endpoints to test OAuth flow all by yourself without any front
 
 - **Step 1:** Navigate to this url: https://github.com/login/oauth/authorize?client_id=3f2c99a3de279ba209fb](https://github.com/login/oauth/authorize?client_id=3f2c99a3de279ba209fb) where ```client_id``` refers to the client_id of the github app I've created for this exemple following [this](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
 
-- **Step 2:** After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with a code that you will be able to use later during the authenticate step. 
+- **Step 2:** After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with your authorization code. 
 (this url is set as callback url in github configuration)
+
+- **Step 3:** Request ```POST /auth/authenticate``` with the right ```grant_type``` and the ```code``` you just received, and you should get a access/refresh tokens duet as response. 
 
 ## Try it
 
