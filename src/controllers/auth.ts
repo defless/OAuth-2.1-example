@@ -18,6 +18,7 @@ import User from '../core/models/user';
 */
 export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
   const { grant_type } = request.body as AuthenticateBody;
+  if (!grant_type) reply.code(400).send({ message: 'missing_grant_type' });
   try {
     switch (grant_type) {
       case 'password':

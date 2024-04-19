@@ -189,15 +189,15 @@ describe('api tests', () => {
     });
   });
 
-  describe('/content', () => {
-    describe('GET /content/unrestricted', () => {
+  describe('/ressources', () => {
+    describe('GET /ressources/unrestricted', () => {
       test('should return a 200 status code', async () => {
-        const response = await get('/content/unrestricted');
+        const response = await get('/ressources/unrestricted');
         expect(response.content).toBe('This is an unrestricted content 🎉');
       });
     });
 
-    describe('GET /content/restricted', () => {
+    describe('GET /ressources/restricted', () => {
       let user;
       beforeAll(async () => {
         user = await new User({
@@ -211,7 +211,7 @@ describe('api tests', () => {
         process.env.privateKey = 'privateKey';
         const accessToken = generateAccessToken(user._id, user.email);
         const response = await get(
-          '/content/restricted',
+          '/ressources/restricted',
           { headers: { authorization: `Bearer ${accessToken}` } },
         );
 
@@ -222,7 +222,7 @@ describe('api tests', () => {
         const secondUser = new User({});
         const accessToken = generateAccessToken(secondUser._id, user.email);
         const response = await get(
-          '/content/restricted',
+          '/ressources/restricted',
           { headers: { authorization: `Bearer ${accessToken}` } },
         );
         expect(response.message).toBe('unauthorized_client');
@@ -230,7 +230,7 @@ describe('api tests', () => {
 
       test('should return a 400 missing_authorization_header error', async () => {
         const response = await get(
-          '/content/restricted',
+          '/ressources/restricted',
           { headers: {} },
         );
         expect(response.message).toBe('missing_authorization_header');

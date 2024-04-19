@@ -1,7 +1,7 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 
-import { content, auth, helpers } from './src/routes'
+import { ressources, auth, helpers } from './src/routes'
 
 declare interface ServerOptions {
   logger?: boolean;
@@ -20,7 +20,7 @@ export const server = (opts: ServerOptions) => {
   })
   
   fastify.register(auth);
-  fastify.register(content);
+  fastify.register(ressources);
   fastify.register(helpers);
 
   return fastify;

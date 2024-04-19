@@ -1,5 +1,5 @@
-import content from './content';
+import ressources from './ressources';
 import auth from './auth';
 import helpers from './helpers';
 
-export { content, auth, helpers };
+export { ressources, auth, helpers };

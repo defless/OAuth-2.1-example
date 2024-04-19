@@ -12,7 +12,6 @@ const auth = async (fastify: FastifyInstance) => {
       schema: {
         body: {
           type: 'object',
-          required: ['grant_type'],
           properties: {
             email: { type: 'string' },
             password: { type: 'string' },
@@ -46,7 +45,7 @@ const auth = async (fastify: FastifyInstance) => {
       schema: {
         body: {
           type: 'object',
-          required: ['username', 'password'],
+          required: ['email', 'password'],
           properties: {
             username: { type: 'string' },
             password: { type: 'string' }
