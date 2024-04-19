@@ -5,7 +5,7 @@ to contribute ! 🙃
 
 ## Table of Contents
 * [Installation](#installation)
-* [What is OAuth ?](#what-is-auth)
+* [What is OAuth ?](#what-is-oauth)
 * [How to use this repository ?](#how-to-use-this-repository)
 * [Try it](#try-it)
 
@@ -28,7 +28,7 @@ yarn dev # or using pnpm: pnpm dev
 
 The auth server is by default listening on port 3000 </br>
 
-## What is OAuth ? 
+## What is OAuth
 
 ### OAuth 2.0 
 
@@ -60,7 +60,7 @@ Here's the basic protocol flow:
 
 ```
 
-### And what about 2.1 ??? 🧐
+### And what about 2.1 🧐
 
 OAuth 2.1 is an in-progress effort to consolidate and simplify the most commonly used features of OAuth 2.0. You can go [here](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10) for more details.
 
@@ -78,27 +78,47 @@ But the main changes are the following:
  
  - Refresh tokens for public clients must either be sender-constrained or one-time use 
 
-## How to use this repository ?
+## How to use this repository
 
 This API provides endpoints to test OAuth flow all by yourself without any front-end. The limit however is that as there is no front-end application you need to do some more steps by yourself in order to make it work. Of course in a production ready application it would'nt have been done this way. 
 
 ### Register a new user
 
-#### Using user credentials:
+#### 1/ Using user credentials:
 
   You can register a new user in two ways, first you can use the ```POST /auth/register``` route to register a user by sending an email 
 
-#### Using a third party provider 
+#### 2/ Using a third party provider 
 
-You also can create an account using a third party provider (Google & Github). The way to do it differs according to the provider you choose for your connection.
+  For a third party provider, the register process is the same that an [authentication](#). 
 
-<ins>Using Github:</ins>
+### Authenticate
 
-ℹ️ As Github **does not support PKCE** you can ignore ```code_verifier``` and ```code_challenge```
+#### With ```grant_type="password"```
 
-Just go to this url: [https://github.com/login/oauth/authorize?client_id=3f2c99a3de279ba209fb](https://github.com/login/oauth/authorize?client_id=3f2c99a3de279ba209fb) where ```client_id``` refers to the client_id of the github app I've created for this exemple following [this](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+#### With ```grant_type="refresh_token"```
 
-After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with a code that you will be able to use later during the authenticate step. 
+#### With ```grant_type="authorization_code"```
+
+
+
+##### <ins>Using Google:</ins>
+> ℹ️ You can find the documentation for Google Api using OAuth [here](https://developers.google.com/identity/protocols/oauth2/native-app)
+
+- **Step 1:** Request ```GET /helpers/pkce``` to get your ```code_challenge``` and your ```code_verifier``` required for the PKCE flow. 
+
+- **Step 2:** Navigate to this url https://accounts.google.com/o/oauth2/v2/auth/oauth?scope=email&response_type=code&redirect_uri=http://localhost:3000/helpers/callback&client_id=616004699496-e8udbu373o3muhns6ca826d8hsvtski8.apps.googleusercontent.com&code_challenge_method=256&code_challenge=[YOUR_CODE_CHALLENGE] 
+> ⚠️ Don't forget to set your own code_challenge generated earlier in the url
+
+- **Step 3:** After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with a code that you will be able to use later during the authenticate step alongside the ```code_verifier```.
+
+##### <ins>Using Github:</ins>
+
+> ℹ️ As Github **does not support PKCE** you can ignore ```code_verifier``` and ```code_challenge```
+
+- **Step 1:** Navigate to this url: https://github.com/login/oauth/authorize?client_id=3f2c99a3de279ba209fb](https://github.com/login/oauth/authorize?client_id=3f2c99a3de279ba209fb) where ```client_id``` refers to the client_id of the github app I've created for this exemple following [this](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+
+- **Step 2:** After connecting with your credentials you will be redirected to the ```GET /helpers/callback``` with a code that you will be able to use later during the authenticate step. 
 (this url is set as callback url in github configuration)
 
 ## Try it
