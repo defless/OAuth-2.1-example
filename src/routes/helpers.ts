@@ -3,7 +3,7 @@ import { generatePKCE } from '../controllers/helpers';
 
 const helpers = async (fastify: FastifyInstance) => {
   fastify.get('/helpers/pkce',
-    (request, reply) => generatePKCE(request, reply)
+    (_request, reply) => generatePKCE(reply)
   );
 
   fastify.get('/helpers/callback',

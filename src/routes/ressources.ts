@@ -8,12 +8,12 @@ import {
 const content = async (fastify: FastifyInstance, opts: object) => {
 
   fastify.get('/ressources/unrestricted',
-    (request, reply) => getUnrestrictedContent(request, reply)
+    (_request, reply) => getUnrestrictedContent(reply)
   );
 
   fastify.get('/ressources/restricted',
     { preHandler: [authMiddleware] },
-    (request, reply) => getRestrictedContent(request, reply)
+    (_request, reply) => getRestrictedContent(reply)
   );
 };
 

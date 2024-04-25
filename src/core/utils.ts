@@ -95,7 +95,7 @@ export const getThirdPartyUser = async (
 };
 
 export const generateAccessToken = (
-  id: mongoose.Types.ObjectId,
+  id: mongoose.Schema.Types.ObjectId,
   email?: string,
 ) => 
   jwt.sign({ id, email }, process.env.privateKey, { expiresIn: '900s' });

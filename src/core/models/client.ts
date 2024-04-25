@@ -1,15 +1,11 @@
 import mongoose from 'mongoose';
 
-declare interface Client {
-  name: string;
-  clientId: string;
-  clientSecret: string;
-}
+import { ClientItem } from '../types';
 
-const ClientSchema = new mongoose.Schema<Client>({
+const ClientSchema = new mongoose.Schema<ClientItem>({
   name: String,
   clientId: String,
   clientSecret: String,
 });
 
-export default mongoose.models.Client || mongoose.model('Client', ClientSchema);
+export default mongoose.model<ClientItem>('Client', ClientSchema);

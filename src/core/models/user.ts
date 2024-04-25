@@ -1,14 +1,8 @@
 import { Schema, model } from 'mongoose';
 
-declare interface User {
-  email: string;
-  password: string;
-  refresh_token: string;
-  authorization_code: string;
-  providerId: string;
-}
+import { UserItem } from '../types';
 
-const UserSchema = new Schema<User>({
+const UserSchema = new Schema<UserItem>({
   email: String,
   password: String,
   refresh_token: String,
@@ -16,4 +10,4 @@ const UserSchema = new Schema<User>({
   providerId: String,
 });
 
-export default model('User', UserSchema);
+export default model<UserItem>('User', UserSchema);

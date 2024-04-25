@@ -4,10 +4,9 @@ import 'dotenv/config'
 import { server } from './server';
 
 try {
-  await mongoose.connect('mongodb://localhost:27017/basicAuth');
-  console.log('[Basic-Auth-database] Successfully connected mongo')
+  await mongoose.connect('mongodb://localhost:27017/oauth-sandbox');
 } catch (error) {
-  console.log('[Basic-Auth-database] Failed to connect mongo');
+  console.error(error);
 }
 
 try {

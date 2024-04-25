@@ -3,6 +3,8 @@ import Crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
 import type {
+  UserItem,
+  ClientItem,
   SignupBody,
   AuthenticateBody,
   ThirdPartyProvider,
@@ -16,33 +18,31 @@ import User from '../core/models/user';
 /*
   Authenticates a user according to the spcecified grant type
 */
-export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
+export const authenticate = async (
+  request: FastifyRequest,
+  reply: FastifyReply) => {
   const { grant_type } = request.body as AuthenticateBody;
   if (!grant_type) reply.code(400).send({ message: 'missing_grant_type' });
-  try {
-    switch (grant_type) {
-      case 'password':
-        await grantWithPassword(request, reply);
-        break;
+  switch (grant_type) {
+    case 'password':
+      await grantWithPassword(request, reply);
+      break;
 
-      case 'refresh_token':
-        await grantWithRefreshToken(request, reply);
-        break;
+    case 'refresh_token':
+      await grantWithRefreshToken(request, reply);
+      break;
 
-      case 'authorization_code':
-        await grantWithAuthCode(request, reply);
-        break;
+    case 'authorization_code':
+      await grantWithAuthCode(request, reply);
+      break;
 
-      case 'client_credentials':
-        await grantWithClientCredentials(request, reply);
-        break;
+    case 'client_credentials':
+      await grantWithClientCredentials(request, reply);
+      break;
 
-      default:
-        reply.code(400).send({ message: 'invalid_grant_type' });
-        break;
-    }
-  } catch (e) {
-    reply.status(500).send({ message: 'internal_server_error' });
+    default:
+      reply.code(400).send({ message: 'invalid_grant_type' });
+      break;
   }
 };
 
@@ -52,13 +52,13 @@ export const credentialRegister = async (
 ) => {
   const { email, password } = request.body as SignupBody;
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne<UserItem>({ email });
 
     if (existingUser) {
       reply.code(409).send({ message: 'duplicate_user' })
     }
 
-    const newUser = await new User({
+    const newUser = await new User<UserItem>({
       email,
       password: await bcrypt.hash(password, 10),
       refresh_token: Crypto.randomBytes(64).toString('hex'),
@@ -158,8 +158,7 @@ const grantWithAuthCode = async (request: FastifyRequest, reply: FastifyReply) =
 
 const grantWithClientCredentials = async (request: FastifyRequest, reply: FastifyReply) => {
   const { client_secret, client_id } = request.body as ClientCredentialsBody;
-  console.log((await Client.find())[0]);
-  const client = await Client.findOne({ clientId: client_id });
+  const client = await Client.findOne<ClientItem>({ clientId: client_id });
 
   if (!client) {
     reply.code(401).send({ message: 'unknow_client' });

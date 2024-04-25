@@ -1,5 +1,22 @@
-import type { ObjectId } from "mongoose";
+import mongoose, { type ObjectId } from "mongoose";
 
+declare interface MongoItem {
+  _id?: mongoose.Schema.Types.ObjectId,
+}
+
+export declare interface UserItem extends MongoItem {
+  email: string;
+  password: string;
+  refresh_token: string;
+  authorization_code?: string;
+  providerId?: string;
+}
+
+export declare interface ClientItem extends MongoItem {
+  name: string;
+  clientId: string;
+  clientSecret: string;
+}
 
 export declare type ThirdPartyProvider = 'github' | 'google';
 
