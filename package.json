@@ -8,7 +8,6 @@
     "lint": "./node_modules/.bin/eslint"
   },
   "dependencies": {
-    "typescript": "5.4.2",
     "@fastify/cors": "^9.0.1",
     "@swc/core": "^1.4.13",
     "@swc/jest": "^0.2.36",
@@ -19,15 +18,17 @@
     "fastify": "4.26.2",
     "jsonwebtoken": "9.0.2",
     "mongoose": "^8.2.3",
-    "tsx": "^4.7.1"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.1",
+    "typescript": "5.4.2"
   },
   "devDependencies": {
-    "mongodb-memory-server": "^9.1.8",
     "@types/jest": "29.5.12",
     "@types/node": "20.11.28",
     "eslint": "8.57.0",
     "eslint-plugin-import": "2.29.1",
     "jest": "29.7.0",
+    "mongodb-memory-server": "^9.1.8",
     "ts-jest": "^29.1.2"
   }
 }
