@@ -47,7 +47,7 @@ describe('api tests', () => {
 
   describe('/auth', () => {
     beforeAll(() => {
-      process.env.privateKey = 'test';
+      process.env.PRIVATE_KEY = 'test';
     });
 
     describe('POST /auth/authenticate', () => {
@@ -173,7 +173,7 @@ describe('api tests', () => {
       });
 
       it('should return a 200 status code', async () => {
-        process.env.privateKey = 'privateKey';
+        process.env.PRIVATE_KEY = 'privateKey';
         const accessToken = generateAccessToken(user._id as any, user.email);
         const response = await get(
           '/resources/restricted',

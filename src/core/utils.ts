@@ -11,7 +11,6 @@ import {
   GITHUB_SECRET,
   GOOGLE_PUBLIC,
   GOOGLE_SECRET,
-  PRIVATE_KEY,
 } from './env';
 
 const getGithubToken = async (code: string): Promise<GithubTokenItem> => {
@@ -120,7 +119,11 @@ export const getThirdPartyUser = async (
 export const generateAccessToken = (
   id: mongoose.Schema.Types.ObjectId,
   email?: string,
-) => jwt.sign({ id, email }, PRIVATE_KEY as string, { expiresIn: '900s' });
+) => jwt.sign(
+  { id, email },
+  (process.env.PRIVATE_KEY || process.env.privateKey || 'test') as string,
+  { expiresIn: '900s' },
+);
 
 export const assert = () => {
 
