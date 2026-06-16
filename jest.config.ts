@@ -1,10 +1,10 @@
-import type { JestConfigWithTsJest } from 'ts-jest'
+import type { JestConfigWithTsJest } from 'ts-jest';
 
 const jestConfig: JestConfigWithTsJest = {
   transform: {
     '^.+\\.ts?$': '@swc/jest',
   },
-  extensionsToTreatAsEsm: [".ts"],
-}
+  extensionsToTreatAsEsm: ['.ts'],
+};
 
-export default jestConfig
+export default jestConfig;

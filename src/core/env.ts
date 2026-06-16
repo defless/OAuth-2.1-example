@@ -1,0 +1,9 @@
+export const {
+  PRIVATE_KEY,
+  CODE_VERIFIER,
+  COOKIE_SECRET,
+  GITHUB_PUBLIC,
+  GITHUB_SECRET,
+  GOOGLE_PUBLIC,
+  GOOGLE_SECRET,
+} = process.env;

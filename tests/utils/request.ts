@@ -4,7 +4,7 @@ declare interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
 }
 
-const request = async (url: string, opts: RequestOptions) => {
+const request = async (url: string, opts: RequestOptions): Promise<any> => {
   const request = await fetch(`http://localhost:3000${url}`, {
     ...opts,
     body: JSON.stringify(opts.body),
@@ -13,6 +13,7 @@ const request = async (url: string, opts: RequestOptions) => {
       ...opts.headers,
     },
   });
+
   return await request.json();
 };
 
