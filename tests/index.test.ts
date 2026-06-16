@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 import { server } from '../server.ts';
 import User from '../src/core/models/user.ts';
 import Client from '../src/core/models/client.ts';
-import { get, post } from './utils/request.ts';
+import { get, post, setBaseUrl } from './utils/request.ts';
 import { generateAccessToken } from '../src/core/utils.ts';
 import {
   UserItem,
@@ -19,7 +19,13 @@ describe('api tests', () => {
   const fastify = server({ logger: false, disableRequestLogging: true });
 
   beforeAll(async () => {
-    await fastify.listen({ port: 3000 });
+    await fastify.listen({ port: 0 });
+    const address = fastify.server.address();
+    const port = typeof address === 'string'
+      ? 3000
+      : address?.port || 3000;
+    setBaseUrl(`http://localhost:${port}`);
+
     mongoServer = await MongoMemoryServer.create();
     await mongoose.connect(
       mongoServer.getUri(),
@@ -40,7 +46,9 @@ describe('api tests', () => {
   });
 
   describe('/auth', () => {
-    process.env.privateKey = 'test';
+    beforeAll(() => {
+      process.env.privateKey = 'test';
+    });
 
     describe('POST /auth/authenticate', () => {
       describe('with grant_type=password', () => {
