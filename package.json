@@ -8,29 +8,28 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@fastify/cookie": "11.0.2",
     "@fastify/cors": "11.2.0",
     "@swc/core": "1.15.21",
     "@swc/jest": "0.2.39",
+    "@types/bcrypt": "6.0.0",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/node": "20.11.28",
     "bcrypt": "6.0.0",
     "dotenv": "17.3.1",
-    "eslint-config-airbnb-base": "15.0.0",
-    "eslint-plugin-jest": "29 .15.1",
     "fastify": "5.8.4",
     "jsonwebtoken": "9.0.3",
     "mongoose": "8.2.3",
     "tsx": "4.21.0",
-    "typescript": "6.0.2",
-    "@fastify/cookie": "11.0.2",
-    "@types/bcrypt": "6.0.0",
-    "@types/jsonwebtoken": "9.0.10",
-    "@types/node": "20.11.28"
+    "typescript": "6.0.2"
   },
   "devDependencies": {
+    "@poool/eslint-config": "5.0.10",
     "@types/jest": "29.5.12",
-    "eslint": "8.57.0",
-    "eslint-plugin-import": "2.29.1",
+    "eslint": "9.0.0",
     "jest": "29.7.0",
     "mongodb-memory-server": "9.1.8",
-    "ts-jest": "29.1.2"
+    "ts-jest": "29.1.2",
+    "typescript-eslint": "8.13.0"
   }
 }
