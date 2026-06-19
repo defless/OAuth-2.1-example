@@ -20,16 +20,21 @@ export default async (request: FastifyRequest, reply: FastifyReply) => {
       });
     }
 
-    const token = authorization.split(' ')[1];
+    const [scheme, token] = authorization.split(' ');
 
-    if (!token) {
+    if (scheme !== 'Bearer' || !token) {
       return reply.status(400).send({
         message: 'invalid_authorization_format',
       });
     }
 
-    const privateKey = process.env.PRIVATE_KEY || 'test';
-    const decoded = jwt.verify(token, privateKey) as JWTPayload;
+    const { PRIVATE_KEY } = process.env;
+
+    if (!PRIVATE_KEY) {
+      return reply.status(500).send({ message: 'internal_server_error' });
+    }
+
+    const decoded = jwt.verify(token, PRIVATE_KEY) as JWTPayload;
 
     const user = await User.findById(decoded.id);
 
