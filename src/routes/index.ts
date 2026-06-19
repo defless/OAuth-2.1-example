@@ -1,5 +1,5 @@
-import ressources from './ressources';
+import resources from './resources';
 import auth from './auth';
 import helpers from './helpers';
 
-export { ressources, auth, helpers };
+export { resources, auth, helpers };

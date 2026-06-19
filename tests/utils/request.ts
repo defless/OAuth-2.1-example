@@ -4,16 +4,32 @@ declare interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
 }
 
-const request = async (url: string, opts: RequestOptions) => {
-  const request = await fetch(`http://localhost:3000${url}`, {
-    ...opts,
-    body: JSON.stringify(opts.body),
+let baseUrl = 'http://localhost:3000';
+
+export const setBaseUrl = (url: string) => {
+  baseUrl = url;
+};
+
+const request = async (url: string, opts: RequestOptions): Promise<any> => {
+  const fetchOpts: RequestInit = {
+    method: opts.method || 'GET',
     headers: {
       'Content-Type': 'application/json',
       ...opts.headers,
     },
-  });
-  return await request.json();
+  };
+
+  if (opts.body && opts.method !== 'GET') {
+    fetchOpts.body = JSON.stringify(opts.body);
+  }
+
+  const res = await fetch(`${baseUrl}${url}`, fetchOpts);
+
+  if (!res.ok) {
+    return res.json().catch(() => ({ status: res.status }));
+  }
+
+  return res.json();
 };
 
 export const get = (url: string, opts?: RequestOptions) => request(url, {

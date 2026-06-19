@@ -1,4 +1,4 @@
-import mongoose, { type ObjectId } from "mongoose";
+import mongoose, { type ObjectId } from 'mongoose';
 
 declare interface MongoItem {
   _id?: mongoose.Schema.Types.ObjectId,
@@ -20,7 +20,8 @@ export declare interface ClientItem extends MongoItem {
 
 export declare type ThirdPartyProvider = 'github' | 'google';
 
-export declare type GrantType = 'password' | 'refresh_token' | 'authorization_code' | 'client_credentials';
+export declare type GrantType =
+  'password' | 'refresh_token' | 'authorization_code' | 'client_credentials';
 
 export declare interface SignupBody {
   email?: string;
@@ -54,4 +55,9 @@ export declare interface ClientCredentialsBody {
   client_id: string;
   client_secret: string;
   grant_type: GrantType;
+}
+
+export declare interface ServerError extends Error {
+  code?: number;
+  message: string;
 }

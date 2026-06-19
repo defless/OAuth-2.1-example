@@ -1,18 +1,25 @@
-import mongoose from 'mongoose'
-import 'dotenv/config'
+import mongoose from 'mongoose';
+import 'dotenv/config';
 
 import { server } from './server';
 
+const MONGODB_URI = process.env.MONGODB_URI
+  || 'mongodb://localhost:27017/oauth-sandbox';
+const PORT = Number(process.env.PORT) || 3000;
+
 try {
-  await mongoose.connect('mongodb://localhost:27017/oauth-sandbox');
+  await mongoose.connect(MONGODB_URI);
+  console.log('Connected to MongoDB');
 } catch (error) {
-  console.error(error);
+  console.error('MongoDB connection error:', error);
+  process.exit(1);
 }
 
 try {
-  await server({ logger: true }).listen({ port: 3000 })
-} catch (err) {
-  console.log(err);
-  process.exit(1)
+  const app = server({ logger: true });
+  await app.listen({ port: PORT, host: '0.0.0.0' });
+  console.log(`Server listening on port ${PORT}`);
+} catch (error) {
+  console.error('Server start error:', error);
+  process.exit(1);
 }
-
