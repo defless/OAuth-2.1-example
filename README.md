@@ -1,6 +1,6 @@
 # OAuth 2.1 implementation sandbox  🔐
 
-![Tests](https://github.com/defless/OAuth-2.1-example/actions/workflows/test/badge.svg)
+[![test](https://github.com/defless/OAuth-2.1-example/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/defless/OAuth-2.1-example/actions/workflows/test.yml)
 
 This repository is an object lesson of an [OAuth 2.1](https://oauth.net/2/) protocol integration on a basic **Fastify API**. I made it for learning purposes, so feel free
 to contribute ! 🙃
