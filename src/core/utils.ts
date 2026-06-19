@@ -7,6 +7,7 @@ import type {
   ThirdPartyProvider,
 } from './types';
 import {
+  PRIVATE_KEY,
   GITHUB_PUBLIC,
   GITHUB_SECRET,
   GOOGLE_PUBLIC,
@@ -122,11 +123,19 @@ export const getThirdPartyUser = async (
 export const generateAccessToken = (
   id: mongoose.Schema.Types.ObjectId,
   email?: string,
-) => jwt.sign(
-  { id, email },
-  (process.env.PRIVATE_KEY || process.env.privateKey || 'test') as string,
-  { expiresIn: '900s' },
-);
+) => {
+  const privateKey = PRIVATE_KEY || process.env.privateKey;
+
+  if (!privateKey) {
+    throw new Error('PRIVATE_KEY is not configured');
+  }
+
+  return jwt.sign(
+    { id, email },
+    privateKey,
+    { expiresIn: '900s' },
+  );
+};
 
 export const assert = () => {
 
