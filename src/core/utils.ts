@@ -96,8 +96,7 @@ export const getThirdPartyToken = (
     case 'google':
       return getGoogleToken(code, codeVerifier as string);
     default:
-      // return error
-      break;
+      throw new Error(`Unsupported provider: ${provider}`);
   }
 };
 
