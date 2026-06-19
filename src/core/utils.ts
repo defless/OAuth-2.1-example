@@ -53,8 +53,12 @@ const getGoogleToken = async (
     url.searchParams.append('code_verifier', codeVerifier);
   }
 
-  url.searchParams.append('client_id', GOOGLE_PUBLIC as string);
-  url.searchParams.append('client_secret', GOOGLE_SECRET as string);
+  if (!GOOGLE_PUBLIC || !GOOGLE_SECRET) {
+    throw new Error('missing_google_oauth_env');
+  }
+
+  url.searchParams.append('client_id', GOOGLE_PUBLIC);
+  url.searchParams.append('client_secret', GOOGLE_SECRET);
   url.searchParams.append('code', code);
   url.searchParams.append(
     'redirect_uri',
