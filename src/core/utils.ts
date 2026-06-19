@@ -115,8 +115,7 @@ export const getThirdPartyUser = async (
     case 'google':
       return await getGoogleUser(token);
     default:
-      // return error
-      break;
+      throw new Error(`Unsupported provider: ${provider}`);
   }
 };
 
